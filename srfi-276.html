@@ -161,54 +161,60 @@ SPDX-License-Identifier: MIT
   operations corresponding to IEEE 754-2019 and C23.
 </p>
 
-<h2 id="toc"><a href="#toc"></a>Table of Contents</h2>
-
+<h2 id="toc">Table of Contents</h2>
 <ol>
-<li><a href="#issues">Issues</a></li>
-<li><a href="#rationale">Rationale</a>
+  <li>
+    <a href="#rationale">Rationale</a>
     <ol>
-    <li><a href="#speed-portability-and-ease-of-use">Speed and Portability vs. Ease of Use</a></li>
-    <li><a href="#criteria">Criteria for inclusion</a></li>
+      <li><a href="#speed-portability-and-ease-of-use">Speed and Portability vs. Ease of Use</a></li>
+      <li><a href="#criteria">Criteria for inclusion</a></li>
     </ol>
-</li>
-<li><a href="#terminology">Terminology</a></li>
-<li><a href="#precise">Precise representation of flonums</a></li>
-<li><a href="#argument-convention">Argument conventions</a></li>
-<li><a href="#library">Library names</a></li>
-<li><a href="#library-desc">Floating-point library</a>
+  </li>
+  <li><a href="#terminology">Terminology</a></li>
+  <li><a href="#precise">Precise representation of flonums</a></li>
+  <li><a href="#argument-convention">Argument conventions</a></li>
+  <li><a href="#library">Library names</a></li>
+  <li>
+    <a href="#library-desc">Floating-point library</a>
     <ol>
-    <li><a href="#nan-conventions">NaN conventions</a></li>
-    <li><a href="#numeric-constants">Numeric constants</a></li>
-    <li><a href="#implementation-constants">Implementation constants</a></li>
-    <li><a href="#constructors">Constructors</a></li>
-    <li><a href="#accessors">Accessors</a></li>
-    <li><a href="#predicates">Predicates</a></li>
-    <li><a href="#arithmetic">Arithmetic</a></li>
-    <li><a href="#integer-rounding">Integer rounding</a></li>
-    <li><a href="#integer-division">Integer division</a></li>
-    <li><a href="#exponential">Exponentials</a></li>
-    <li><a href="#logarithms">Logarithms</a></li>
-    <li><a href="#power">Powers and roots</a></li>
-    <li><a href="#trigonometric">Trigonometric functions</a></li>
-    <li><a href="#inverse-trigonometric">Inverse trigonometric functions</a></li>
-    <li><a href="#hyperbolic">Hyperbolic functions</a></li>
-    <li><a href="#special">Special functions</a></li>
-    <li><a href="#implementation-query">Implementation query</a></li>
-    <li><a href="#serialization">Serialization and deserialization</a></li>
+      <li><a href="#model">Floating-point model</a></li>
+      <li><a href="#nan-conventions">NaN conventions</a></li>
+      <li><a href="#numeric-constants">Numeric constants</a></li>
+      <li><a href="#implementation-constants">Implementation constants</a></li>
+      <li><a href="#constructors">Constructors</a></li>
+      <li><a href="#accessors">Accessors</a></li>
+      <li><a href="#predicates">Predicates</a></li>
+      <li><a href="#arithmetic">Arithmetic</a></li>
+      <li><a href="#integer-rounding">Integer rounding</a></li>
+      <li><a href="#integer-division">Integer division</a></li>
+      <li><a href="#exponential">Exponentials</a></li>
+      <li><a href="#logarithms">Logarithms</a></li>
+      <li><a href="#power">Powers and roots</a></li>
+      <li><a href="#trigonometric">Trigonometric functions</a></li>
+      <li><a href="#inverse-trigonometric">Inverse trigonometric functions</a></li>
+      <li><a href="#hyperbolic">Hyperbolic functions</a></li>
+      <li><a href="#special">Special functions</a></li>
+      <li><a href="#cond-expand-features">Features</a></li>
+      <li><a href="#serialization">Serialization and deserialization</a></li>
+      <li><a href="#deprecated-identifiers">
+    Deprecated identifiers</a></li>
     </ol>
-</li>
-<li><a href="#rounding-mode-library">Rounding mode libraries</a></li>
-<li><a href="#exception-libraries">Floating point exception library</a></li>
-<li><a href="#environment">Floating point environment library</a></li>
-<li><a href="#implications">Implications of IEEE arithmetic for optimizers</a></li>
-<li><a href="#examples">Examples</a></li>
-<li><a href="#considerations">Considerations for inexact number vectors</a></li>
-<li><a href="#reader-syntax">Reader syntax suggestions</a></li>
-<li><a href="#implementation">Implementation</a></li>
-<li><a href="#acknowledgements">Acknowledgements</a></li>
-<li><a href="#appendix1">Appendix 1: Relationship between this SRFI and other standards</a></li>
-<li><a href="#bibliography">Bibliography</a></li>
-<li><a href="#copyright">Copyright</a></li>
+  </li>
+  <li><a href="#rounding-mode-library">
+    Rounding mode libraries</a></li>
+  <li><a href="#exception-libraries">
+  Floating-point exception library</a></li>
+  <li><a href="#environment">Floating point environment library</a></li>
+  <li><a href="#implications">Implications of IEEE arithmetic for optimizers</a></li>
+  <li><a href="#examples">Examples</a></li>
+  <li><a href="#considerations">Considerations for inexact number vectors</a></li>
+  <li><a href="#reader-syntax">Reader syntax suggestions</a></li>
+  <li><a href="#implementation">Implementation</a></li>
+  <li><a href="#acknowledgements">Acknowledgements</a></li>
+  <li><a href="#appendix1">Appendix 1: Relationship
+between this SRFI and other standards</a></li>
+  <li><a href="#bibliography">Bibliography</a></li>
+  <li><a href="#copyright">Copyright</a></li>
 </ol>
 
 <h2 id="issues"><a href="#issues"></a>Issues</h2>
@@ -2718,8 +2724,7 @@ operation exception.</li>
 </p>
 </div>
 
-<h3 id="cond-expand-features"><a href="#cond-expand-features"></a>
-  Features</h3>
+<h3 id="cond-expand-features"><a href="#cond-expand-features"></a>Features</h3>
 
 <p>
   The following features are added to the list of features that
@@ -2773,8 +2778,7 @@ operation exception.</li>
 </p>
 </div>
 
-<h3 id="serialization"><a href="#serialization"></a>
-  Serialization and deserialization</h3>
+<h3 id="serialization"><a href="#serialization"></a>Serialization and deserialization</h3>
 
 <div class="feature" id="bytevector-flonum-ref">
 <span class="category">(srfi 276 ⟨library⟩)<br>procedure</span>
