@@ -64,7 +64,7 @@
     (test-property
      (lambda (fl)
        (eqv? (flcospi fl) 0.0))
-     (list 
+     (list
       (gcons*
        -1.5 -0.5 0.5 1.5 2.5
        (make-random-inexact-integer+0.5-generator))))))

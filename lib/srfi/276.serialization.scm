@@ -67,7 +67,7 @@
 		(fl* (flonum fl-radix)
 		     (fl- significand bit))
 		(cons (exact bit) acc))))))))
-  
+
 (define (collect-byte list)
   (do ((i 0 (fx+ i 1))
        (byte 0 (fxior byte

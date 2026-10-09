@@ -28,7 +28,7 @@
 		       ))
 	  (sign (zero? (random-integer 2)))
 	  (mantissa (random-integer (expt 2 fl-precision))))
-      (flcopysign (make-flonum (flonum mantissa) 
+      (flcopysign (make-flonum (flonum mantissa)
 			       exponent)
 		  (if sign -1.0 1.0)))))
 
@@ -86,7 +86,7 @@
 		    (and (not (flzero? x))
 			 (not (fl=? (flabs x) 1.0))))
 		  (make-random-finite-flonum-generator)))))
-    
+
 (define (make-random-finite-flonum-generator)
   (gfilter flfinite? (make-random-flonum-generator)))
 
@@ -96,7 +96,7 @@
 (define (random-nan)
   (cond-expand
     ((library (srfi 208))
-     (let ((payload (+ 1 
+     (let ((payload (+ 1
 		       (random-integer #x7FFFFFFFFFF)))
 	   (sign? (zero? (random-integer 2)))
 	   (quiet? (zero? (random-integer 2))))

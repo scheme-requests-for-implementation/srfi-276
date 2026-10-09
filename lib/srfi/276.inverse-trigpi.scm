@@ -109,7 +109,7 @@ Sollya 8.0 script:
 
 Output:
 
-     Display mode is hexadecimal numbers. 
+     Display mode is hexadecimal numbers.
       Relative error:  0x1.0392366c0e65bf287121b38e8df055480daa951c2p-53
      Absolute error:  0x1.e42c0a8e085c1bfa8fcba7c3d7c73916733aea848p-57
      Polynomial:
