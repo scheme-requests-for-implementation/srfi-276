@@ -117,6 +117,12 @@ SPDX-License-Identifier: MIT
               font-family: serif;
               font-style: italic;
             }
+
+            h2 > a[href^="#"]::before,
+            h3 > a[href^="#"]::before,
+            h4 > a[href^="#"]::before {
+              content: "¶";
+            }
     </style>
     <link href="/favicon.png" rel="icon" sizes="192x192" type="image/png">
     <link rel="stylesheet" href="https://srfi.schemers.org/srfi.css" type="text/css">
@@ -130,7 +136,7 @@ SPDX-License-Identifier: MIT
 
 <p>by Peter McGoron</p>
 
-<h2 id="status">Status</h2>
+<h2 id="status"><a href="#status"></a>Status</h2>
 
 <p>This SRFI is currently in <em>draft</em> status.  Here is <a href="https://srfi.schemers.org/srfi-process.html">an explanation</a> of each status that a SRFI can hold.  To provide input on this SRFI, please send email to <code><a href="mailto:srfi+minus+276+at+srfi+dotschemers+dot+org">srfi-276@<span class="antispam">nospam</span>srfi.schemers.org</a></code>.  To subscribe to the list, follow <a href="https://srfi.schemers.org/srfi-list-subscribe.html">these instructions</a>.  You can access previous messages via the mailing list <a href="https://srfi-email.schemers.org/srfi-276/">archive</a>.</p>
     <ul>
@@ -143,7 +149,7 @@ SPDX-License-Identifier: MIT
       <li>Draft #2 published: 2026-08-06</li>
     </ul>
 
-<h2 id="abstract"><a href="#abstract">&para;</a> Abstract</h2>
+<h2 id="abstract"><a href="#abstract"></a>Abstract</h2>
 
 <p>
   This SRFI is an updated version of <a href="https://srfi.schemers.org/srfi-144/">SRFI
@@ -155,7 +161,7 @@ SPDX-License-Identifier: MIT
   operations corresponding to IEEE 754-2019 and C23.
 </p>
 
-<h2 id="toc"><a href="#toc">&para;</a> Table of Contents</h2>
+<h2 id="toc"><a href="#toc"></a>Table of Contents</h2>
 
 <ol>
 <li><a href="#issues">Issues</a></li>
@@ -205,7 +211,7 @@ SPDX-License-Identifier: MIT
 <li><a href="#copyright">Copyright</a></li>
 </ol>
 
-<h2 id="issues"><a href="#issues">&para;</a> Issues</h2>
+<h2 id="issues"><a href="#issues"></a>Issues</h2>
 
 <ul>
   <li>
@@ -227,7 +233,7 @@ SPDX-License-Identifier: MIT
   </li>
 </ul>
 
-<h2 id="rationale"><a href="#rationale">&para;</a> Rationale</h2>
+<h2 id="rationale"><a href="#rationale"></a>Rationale</h2>
 <p><em>This section is non-normative.</em></p>
 
 <p>
@@ -258,7 +264,7 @@ SPDX-License-Identifier: MIT
   FFI to C23: the definitions between this SRFI and C23 are harmonized.
 </p>
 
-<h3 id="speed-portability-and-ease-of-use"><a href="#speed-portability-and-ease-of-use">&para;</a> Speed and Portability vs. Ease of Use</h3>
+<h3 id="speed-portability-and-ease-of-use"><a href="#speed-portability-and-ease-of-use"></a>Speed and Portability vs. Ease of Use</h3>
 
 <p>
   One reason to use type-specific procedures is speed: the function
@@ -297,7 +303,7 @@ SPDX-License-Identifier: MIT
   about strict reproducibility or the absolute fastest speed.
 </p>
 
-<h3 id="criteria"><a href="#criteria">&para;</a> Criteria for inclusion</h3>
+<h3 id="criteria"><a href="#criteria"></a>Criteria for inclusion</h3>
 
 <p>
   This SRFI defines procedures that mirror functions in C23’s math
@@ -318,7 +324,7 @@ SPDX-License-Identifier: MIT
   implemented in pure Scheme.
 </p>
 
-<h2 id="terminology"><a href="#terminology">&para;</a> Terminology</h2>
+<h2 id="terminology"><a href="#terminology"></a>Terminology</h2>
 
 <p>
   All references to IEEE 754 refer to its 2019 revision.
@@ -390,7 +396,7 @@ SPDX-License-Identifier: MIT
   returns true always.
 </p>
 
-<h2 id="precise"><a href="#precise">&para;</a> Precise representation of flonums</h2>
+<h2 id="precise"><a href="#precise"></a>Precise representation of flonums</h2>
 
 <p>
   The examples in the SRFI use an extension to the syntax of Scheme datums
@@ -424,7 +430,7 @@ SPDX-License-Identifier: MIT
   implementation of this syntax.
 </p>
 
-<h2 id="argument-convention"><a href="#argument-convention">&para;</a> Argument conventions</h2>
+<h2 id="argument-convention"><a href="#argument-convention"></a>Argument conventions</h2>
 
 <p>
   The argument names have the same meanings as the
@@ -463,7 +469,7 @@ SPDX-License-Identifier: MIT
   native endianness, which is an implementation-specified valid value.
 </p>
 
-<h2 id="library"><a href="#library">&para;</a> Library names</h2>
+<h2 id="library"><a href="#library"></a>Library names</h2>
 
 <p>
   The implementation must export the following libraries:
@@ -547,7 +553,7 @@ SPDX-License-Identifier: MIT
   not be exported.
 </p>
 
-<h2 id="library-desc"><a href="#library-desc">&para;</a> Floating-point library</h2>
+<h2 id="library-desc"><a href="#library-desc"></a>Floating-point library</h2>
 
 <p>
   The floating-point libraries are an extension of
@@ -583,7 +589,7 @@ SPDX-License-Identifier: MIT
   statements in the example code.
 </p>
 
-<h3 id="model"><a href="#model">&para;</a> Floating-point model</h3>
+<h3 id="model"><a href="#model"></a>Floating-point model</h3>
 
 <p>
 Finite nonzero flonums are modeled as the numbers </p>
@@ -641,7 +647,7 @@ flonums.</p>
 </p>
 </div>
 
-<h3 id="nan-conventions"><a href="#nan-conventions">&para;</a> NaN conventions</h3>
+<h3 id="nan-conventions"><a href="#nan-conventions"></a>NaN conventions</h3>
 
 <p>
   This SRFI does not require that implementations support all the NaN
@@ -671,7 +677,7 @@ flonums.</p>
   representation of the NaN.
 </p>
 
-<h3 id="numeric-constants"><a href="#numeric-constants">&para;</a> Numeric constants</h3>
+<h3 id="numeric-constants"><a href="#numeric-constants"></a>Numeric constants</h3>
 
 <p>
   The numeric constants of SRFI 144 are exported for the number type
@@ -724,7 +730,7 @@ flonums.</p>
    identifiers.
 </p>
 
-<h3 id="implementation-constants"><a href="#implementation-constants">&para;</a> Implementation constants</h3>
+<h3 id="implementation-constants"><a href="#implementation-constants"></a>Implementation constants</h3>
 
 <div class="feature" id="fl-radix">
 <span class="category">(srfi 276 ⟨library⟩)<br>value</span>
@@ -848,7 +854,7 @@ flonums.</p>
 <p>Size of the flonum in bytes as an exact integer. For the binary64 representation, this
    is 8.</p>
 
-<h3 id="constructors"><a href="#constructors">&para;</a> Constructors</h3>
+<h3 id="constructors"><a href="#constructors"></a>Constructors</h3>
 
 <div class="feature" id="flonum">
 <span class="category">(srfi 276 ⟨library⟩)<br>procedure</span>
@@ -958,7 +964,7 @@ flonums.</p>
   and <code>make-flonum</code> in SRFI 144 are equivalent.
 </div>
 
-<h3 id="accessors"><a href="#accessors">&para;</a> Accessors</h3>
+<h3 id="accessors"><a href="#accessors"></a>Accessors</h3>
 
 <div class="feature" id="flinteger-fraction">
 <span class="category">(srfi 276 ⟨library⟩)<br>procedure</span>
@@ -1121,7 +1127,7 @@ flonums.</p>
    <a href="#flsign-negativep"><code>flsign-negative?</code></a>.
 </p>
 
-<h3 id="predicates"><a href="#predicates">&para;</a> Predicates</h3>
+<h3 id="predicates"><a href="#predicates"></a>Predicates</h3>
 
 <p>
   Unless otherwise specified, none of these procedures raise exceptions
@@ -1435,7 +1441,7 @@ flonums.</p>
   <code>#f</code> otherwise.
 </p>
 
-<h3 id="arithmetic"><a href="#arithmetic">&para;</a> Arithmetic</h3>
+<h3 id="arithmetic"><a href="#arithmetic"></a>Arithmetic</h3>
 
 <div class="feature">
 <span class="category">(srfi 276 ⟨library⟩)<br>procedure</span>
@@ -1690,7 +1696,7 @@ operation exception.</li>
   numerator and denominator of a NaN is a NaN.
 </p>
 
-<h3 id="integer-rounding"><a href="#integer-rounding">&para;</a> Integer rounding</h3>
+<h3 id="integer-rounding"><a href="#integer-rounding"></a>Integer rounding</h3>
 <div class="feature">
 <span class="category">(srfi 276 ⟨library⟩)<br>procedure</span>
 <code class="signature">(<a href="#flfloor" id="flfloor">flfloor</a> <var>fl</var>)</code><br>
@@ -1745,7 +1751,7 @@ operation exception.</li>
 </p>
 </div>
 
-<h3 id="integer-division"><a href="#integer-division">&para;</a> Integer division</h3>
+<h3 id="integer-division"><a href="#integer-division"></a>Integer division</h3>
 
 <p>The following special cases apply to the procedures in this section:
 </p>
@@ -1845,7 +1851,7 @@ operation exception.</li>
   is always correctly rounded.
 </p>
 
-<h3 id="exponential"><a href="#exponential">&para;</a> Exponentials</h3>
+<h3 id="exponential"><a href="#exponential"></a>Exponentials</h3>
 <div class="feature">
 <span class="category">(srfi 276 ⟨library⟩)<br>procedure</span>
 <code class="signature">(<a href="#flexp" id="flexp">flexp</a> <var>fl</var>)</code><br>
@@ -2030,7 +2036,7 @@ operation exception.</li>
 </p>
 </div>
 
-<h3 id="logarithms"><a href="#logarithms">&para;</a> Logarithms</h3>
+<h3 id="logarithms"><a href="#logarithms"></a>Logarithms</h3>
 
 <div class="feature">
 <span class="category">(srfi 276 ⟨library⟩)<br>procedure</span>
@@ -2105,7 +2111,7 @@ operation exception.</li>
   if <var>fl</var> is less than 1.0.
 </p>
 
-<h3 id="power"><a href="#power">&para;</a> Powers and roots</h3>
+<h3 id="power"><a href="#power"></a>Powers and roots</h3>
 <div class="feature">
 <span class="category">(srfi 276 ⟨library⟩)<br>procedure</span>
 <code class="signature">(<a href="#flcbrt"   id="flcbrt">flcbrt</a> <var>fl</var>)</code><br>
@@ -2228,7 +2234,7 @@ operation exception.</li>
 <tr><td><code>(flsqrt x)</code></td><td><var>x</var> &lt; 0</td><td></td><td>NaN</td>
 </table>
 
-<h3 id="trigonometric"><a href="#trigonometric">&para;</a> Trigonometric functions</h3>
+<h3 id="trigonometric"><a href="#trigonometric"></a>Trigonometric functions</h3>
 
 <p>
   All procedures in this section return a NaN when given an infinite
@@ -2333,7 +2339,7 @@ operation exception.</li>
 </tr>
 </table>
 
-<h3 id="inverse-trigonometric"><a href="#inverse-trigonometric">&para;</a> Inverse trigonometric functions</h3>
+<h3 id="inverse-trigonometric"><a href="#inverse-trigonometric"></a>Inverse trigonometric functions</h3>
 
 <div class="feature">
 <span class="category">(srfi 276 ⟨library⟩)<br>procedure</span>
@@ -2418,7 +2424,7 @@ operation exception.</li>
    except that the output of atan is divided by π.
 </p>
 
-<h3 id="hyperbolic"><a href="#hyperbolic">&para;</a> Hyperbolic functions</h3>
+<h3 id="hyperbolic"><a href="#hyperbolic"></a>Hyperbolic functions</h3>
 <div class="feature">
 <span class="category">(srfi 276 ⟨library⟩)<br>procedure</span>
 <code class="signature">(<a href="#flsinh" id="flsinh">flsinh</a> <var>fl</var>)</code>
@@ -2519,7 +2525,7 @@ operation exception.</li>
 </tr>
 </table>
 
-<h3 id="special"><a href="#special">&para;</a> Special functions</h3>
+<h3 id="special"><a href="#special"></a>Special functions</h3>
 <div class="feature">
 <span class="category">(srfi 276 ⟨library⟩)<br>procedure</span>
 <code class="signature">(<a href="#flerf" id="flerf">flerf</a> <var>fl</var>)</code>
@@ -2712,7 +2718,7 @@ operation exception.</li>
 </p>
 </div>
 
-<h3 id="cond-expand-features"><a href="#cond-expand-features">&para;</a>
+<h3 id="cond-expand-features"><a href="#cond-expand-features"></a>
   Features</h3>
 
 <p>
@@ -2767,7 +2773,7 @@ operation exception.</li>
 </p>
 </div>
 
-<h3 id="serialization"><a href="#serialization">&para;</a>
+<h3 id="serialization"><a href="#serialization"></a>
   Serialization and deserialization</h3>
 
 <div class="feature" id="bytevector-flonum-ref">
@@ -2907,7 +2913,7 @@ should round-trip NaNs.</p>
 </p>
 </div>
 
-<h3 id="deprecated-identifiers"><a href="#deprecated-identifiers">&para;</a>
+<h3 id="deprecated-identifiers"><a href="#deprecated-identifiers"></a>
     Deprecated identifiers</h3>
 
 <p>
@@ -3019,7 +3025,7 @@ should round-trip NaNs.</p>
   may wish to obtain from a division operation.
 </p></div>
 
-<h2 id="rounding-mode-library"><a href="#rounding-mode-library">&para;</a>
+<h2 id="rounding-mode-library"><a href="#rounding-mode-library"></a>
     Rounding mode libraries</h2>
 
 <div class="feature" id="current-rounding-mode">
@@ -3138,7 +3144,7 @@ should round-trip NaNs.</p>
         (lambda () body1 body2 ...)
         (lambda () (set-rounding-mode! p)))))))</pre>
 
-<h2 id="exception-libraries"><a href="#exception-libraries">&para;</a>
+<h2 id="exception-libraries"><a href="#exception-libraries"></a>
   Floating-point exception library</h2>
 <div class="feature" id="flexception-namep">
 <span class="category">(srfi 276 exceptions)<br>procedure</span>
@@ -3224,7 +3230,7 @@ should round-trip NaNs.</p>
   else.
 </p>
 
-<h2 id="environment"><a href="#environment">&para;</a> Floating point environment library</h2>
+<h2 id="environment"><a href="#environment"></a>Floating point environment library</h2>
 
 <p>
   An implementation may add more objects to the floating
@@ -3338,7 +3344,7 @@ should round-trip NaNs.</p>
   <var>flenvironment</var>.
 </p>
 
-<h2 id="implications"><a href="#implications">&para;</a> Implications of IEEE arithmetic for optimizers</h2>
+<h2 id="implications"><a href="#implications"></a>Implications of IEEE arithmetic for optimizers</h2>
 
 <p>
   When an implementation advertises that it implements,
@@ -3360,7 +3366,7 @@ should round-trip NaNs.</p>
   rounding.
 </p>
 
-<h2 id="examples"><a href="#examples">&para;</a> Examples</h2>
+<h2 id="examples"><a href="#examples"></a>Examples</h2>
 <p>
   <em>This section is non-normative.</em>
 </p>
@@ -3403,7 +3409,7 @@ should round-trip NaNs.</p>
   in such a way to make the output values differ.
 </p>
 
-<h2 id="considerations"><a href="#considerations">&para;</a> Considerations for inexact number vectors</h2>
+<h2 id="considerations"><a href="#considerations"></a>Considerations for inexact number vectors</h2>
 
 <p>
   <a href="https://srfi.schemers.org/srfi-4/">SRFI 4</a> specifies
@@ -3423,7 +3429,7 @@ should round-trip NaNs.</p>
   <tr><td>c128vector</td><td>each part is binary64</td><td><code>c128vector-is-binary64</code></td></tr>
 </table>
 
-<h2 id="reader-syntax"><a href="#reader-syntax">&para;</a> Reader syntax suggestions</h2>
+<h2 id="reader-syntax"><a href="#reader-syntax"></a>Reader syntax suggestions</h2>
 
 <p>
   On implementations with binary floating point of the
@@ -3447,7 +3453,7 @@ should round-trip NaNs.</p>
   and <a href="#JoldesMullerPopescu2017">Joldes, Muller, and Popescu 2017</a>).
 </p>
 
-<h2 id="implementation"><a href="#implementation">&para;</a> Implementation</h2>
+<h2 id="implementation"><a href="#implementation"></a>Implementation</h2>
 
 <p>
   Two implementations are provided in the SRFI repository: one is an
@@ -3492,7 +3498,7 @@ should round-trip NaNs.</p>
   SRFI 144 as a compatability library.
 </p>
 
-<h2 id="acknowledgements"><a href="#acknowledgements">&para;</a> Acknowledgements</h2>
+<h2 id="acknowledgements"><a href="#acknowledgements"></a>Acknowledgements</h2>
 
 <p>
   Thanks to those in Working Group 2 for discussing the semantics of
@@ -3516,7 +3522,7 @@ should round-trip NaNs.</p>
   suggestions).
 </p>
 
-<h2 id="appendix1"><a href="#appendix1">&para;</a> Appendix 1: Relationship
+<h2 id="appendix1"><a href="#appendix1"></a>Appendix 1: Relationship
 between this SRFI and other standards</h2>
 <p><em>This section is non-normative.</em></p>
 
@@ -3854,7 +3860,7 @@ between this SRFI and other standards</h2>
     <td><code>lgamma</code>, <code>signgam</code></td></tr>
 </table>
 
-<h2 id="bibliography"><a href="#bibliography">&para;</a> Bibliography</h2>
+<h2 id="bibliography"><a href="#bibliography"></a>Bibliography</h2>
 
 <ol>
   <li id="campbell2014">Taylor Campbell. 2014. Uniform random floats:
@@ -3934,7 +3940,7 @@ between this SRFI and other standards</h2>
 </ol>
 
 
-<h2 id="copyright"><a href="#copyright">&para;</a> Copyright</h2>
+<h2 id="copyright"><a href="#copyright"></a>Copyright</h2>
 <p>&copy; 2026 Peter McGoron.</p>
 
 <p>
