@@ -1,0 +1,1 @@
+GSC=${HOME}/.local/gambit-master/bin/gsc

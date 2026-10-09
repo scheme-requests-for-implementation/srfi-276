@@ -1,0 +1,17 @@
+(define-library (srfi 276 deprecated)
+  (import (scheme base) (srfi 276))
+  (export (rename fl-e^2 fl-e-2)
+          (rename fl-e^pi/4 fl-e-pi/4)
+          (rename fl-e^euler fl-e-euler)
+          (rename fl-log10-e fl-1/log-10)
+          (rename fl-log2-e fl-1/log-2)
+          (rename flnormal? flnormalized?)
+          (rename flsubnormal? fldenormalized?)
+          (rename fllog+1 fllog1+)
+          (rename flonum fixnum->flonum)
+          (rename flonum real->flonum))
+  (begin
+    (define (flsignbit fl)
+      (if (flsign-negative? fl)
+          1
+          0))))

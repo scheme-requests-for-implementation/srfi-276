@@ -1,0 +1,27 @@
+(define (test-flnumerator)
+  (test-values (flnumerator 0.0) '(0.0))
+  (test-values (flnumerator -0.0) '(-0.0))
+  (test-predicate (flnan? (flnumerator +nan.0)))
+  (test-values (flnumerator +inf.0) '(+inf.0))
+  (test-values (flnumerator -inf.0) '(-inf.0))
+  (test-values (flnumerator 1.0) '(1.0))
+  (test-values (flnumerator 0.5) '(1.0)))
+
+(define (test-fldenominator)
+  (test-values (fldenominator 0.0) '(1.0))
+  (test-values (fldenominator -0.0) '(1.0))
+  (test-values (fldenominator +inf.0) '(1.0))
+  (test-values (fldenominator -inf.0) '(1.0))
+  (test-values (fldenominator 1.0) '(1.0))
+  (test-values (fldenominator 0.5) '(2.0))
+  (test-predicate (flnan? (fldenominator +nan.0))))
+
+(define (test-flnumerator-and-fldenominator-property)
+  (test-group "flnumerator and fldenominator divide to the original number"
+    (test-property
+     (lambda (fl)
+       (let ((n (flnumerator fl))
+             (d (fldenominator fl)))
+         (or (flinfinite? d)
+             (fl=? fl (fl/ n d)))))
+     (list (make-random-finite-flonum-generator)))))

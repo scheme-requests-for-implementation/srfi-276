@@ -19,6 +19,14 @@ SPDX-License-Identifier: MIT
                 --text-color: black;
                 --visited-link-color: purple;
               }
+
+              pre {
+                  border: 1px solid;
+                  padding: 7.5px;
+                  background-color: #f0f0f0;
+                  margin-bottom: 18pt;
+              }
+
               code {
                   background-color: #f0f0f0;
               }
@@ -31,6 +39,14 @@ SPDX-License-Identifier: MIT
                 --text-color: #e0e0e0;
                 --visited-link-color: Orchid;
               }
+
+              pre {
+                  border: 1px solid;
+                  padding: 7.5px;
+                  background-color: #2b2b2b;
+                  margin-bottom: 18pt;
+              }
+
               code {
                 background-color: #2b2b2b;
               }
@@ -45,9 +61,6 @@ SPDX-License-Identifier: MIT
 
             .normal-font {
               font-family: sans-serif;
-            }
-            .no-bg {
-              background-color: var(--background-color);
             }
 
             .feature {
@@ -75,7 +88,7 @@ SPDX-License-Identifier: MIT
             }
 
             .example-code {
-              background-color: var(--background-color);
+              /* background-color: var(--background-color); */
               display: inline-block;
               min-width: 46ch;
             }
@@ -362,6 +375,21 @@ SPDX-License-Identifier: MIT
   default rounding mode.
 </p>
 
+<p>
+  If a procedure <var>f</var> is <dfn>odd</dfn>, then for each non-NaN
+  flonum <var>fl</var> that the procedure will return a non-NaN flonum
+  for, then <code>(fl=? (<var>f</var> <var>fl</var>) (fl- (<var>f</var> (fl- <var>fl</var>))))</code>
+  returns true when the rounding mode is
+  roundTiesToEven, roundTiesToAway, and roundTowardsZero.
+</p>
+
+<p>
+  If a procedure <var>f</var> is <dfn>even</dfn>, then for each non-NaN
+  flonum <var>fl</var> that the procedure will return a non-NaN flonum
+  for, then <code>(fl=? (<var>f</var> <var>fl</var>) (<var>f</var> (fl- <var>fl</var>)))</code>
+  returns true always.
+</p>
+
 <h2 id="precise"><a href="#precise">&para;</a> Precise representation of flonums</h2>
 
 <p>
@@ -414,7 +442,9 @@ SPDX-License-Identifier: MIT
 </li>
 <li>if <var>endianness</var> is not the
   symbol <code>little</code>, <code>big</code>, or an endianness
-  supplied by the macro in <code>(rnrs bytevectors)</code></li>
+  supplied by the macro in <code>(rnrs bytevectors)</code>
+  or <a href="https://srfi.schemers.org/srfi-281">SRFI 281</a>
+  </li>
 <li>if <var>exception</var> is not a floating point exception
     (see <code><a href="#flexception-namep">flexception-name?</a></code>)</li>
 <li>if <var>flenvironment</var> is not a floating point environment
@@ -553,6 +583,64 @@ SPDX-License-Identifier: MIT
   statements in the example code.
 </p>
 
+<h3 id="model"><a href="#model">&para;</a> Floating-point model</h3>
+
+<p>
+Finite nonzero flonums are modeled as the numbers </p>
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mi>x</mi><mo>=</mo><mi>s</mi><mo>⁢</mo><msup><mi>b</mi><mi>e</mi></msup><msubsup><mo>∑</mo><mrow><mi>k</mi><mo>=</mo><mi>0</mi></mrow><mrow><mi>p</mi><mo>−</mo><mn>1</mn></mrow></msubsup><msub><mi>f</mi><mn>k</mn></msub><mo>⁢</mo><msup><mi>b</mi><mrow><mo>−</mo><mi>k</mi></mrow></msup></math><p>
+The variable <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mi>b</mi></math> is the <dfn>base</dfn> (defined as the value of <code><a href="#fl-radix">fl-radix</a></code>) and the variable <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mi>p</mi></math> is the <dfn>precision</dfn> (defined as the value of <code><a href="#fl-precision">fl-precision</a></code>), both of which only depend on the flonum type.
+The variables <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mi>s</mi></math> (the <dfn>sign</dfn>, which
+is either −1 or +1), <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mi>e</mi></math> (the <dfn>exponent</dfn>, which  is between
+<code><a href="#fl-minimum-normalized-exponent">fl-minimum-normalized-exponent</a></code> inclusive and
+<code><a href="#fl-maximum-exponent">fl-maximum-exponent</a></code> inclusive),
+and <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><msub><mi>f</mi><mi>k</mi></msub></math> (which make up the <dfn>significand</dfn> and whose values
+are the integers in the range <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mo>[</mo><mn>0</mn><mo>,</mo><mn>b</mn><mo>)</mo></math>), vary for different
+flonums.</p>
+<p>
+  When <math xmlns="http://www.w3.org/1998/Math/MathML"
+  display="inline"><msub><mi>f</mi><mn>0</mn></msub><mo>&gt;</mo><mn>0</mn></math>,
+  the number is <dfn>normal</dfn>. When
+  <math xmlns="http://www.w3.org/1998/Math/MathML"
+  display="inline"><msub><mi>f</mi><mn>0</mn></msub><mo>=</mo><mn>0</mn></math>
+  and <math xmlns="http://www.w3.org/1998/Math/MathML"
+  display="inline"><mi>e</mi></math> is the smallest possible normal
+  exponent, the number is <dfn>subnormal</dfn>.
+</p>
+
+<p>
+  When a number is <dfn>treated as normalized</dfn>, it is treated as if
+  it was represented in the model above, but without any limit on the
+  value of <math><mi>e</mi></math>.
+</p>
+
+<div class="boxed">
+<p>
+  <span class="boxed-tag">Note:</span>
+  The significand of a non-zero normal flonum has a integer component
+  less than <math><mi>b</mi></math> and an fractional component. This make
+  the exponent <math><mi>e</mi></math> equal to
+  <math><mo>⌊</mo>
+        <msub><mi>log</mi><mi>b</mi></msub>
+        <mo>&#x2061;</mo><!--Invisible application-->
+        <mrow>
+         <mo>|</mo>
+         <mi>x</mi>
+         <mo>|</mo>
+        </mrow>
+        <mo>⌋</mo>
+  </math>.
+  This is different than C99’s model, where the significand only
+  has fractional components and the exponent is shifted up by one.
+</p>
+<p>
+  Accessors such as
+  <a href="#flnormalized-fraction-exponent"><code
+  >flnormalized-fraction-exponent</code></a>
+  and <a href="#flexponent"><code>flexponent</code></a> return values
+  that are normalized in a different manner than this model.
+</p>
+</div>
+
 <h3 id="nan-conventions"><a href="#nan-conventions">&para;</a> NaN conventions</h3>
 
 <p>
@@ -604,11 +692,9 @@ SPDX-License-Identifier: MIT
    <code>fl-log2-e</code>,
    <code>fl-log10-e</code>,
    <code>fl-log-2</code>,
-   <code>fl-1/log-2</code>,
    <code>fl-log-3</code>,
    <code>fl-log-pi</code>,
    <code>fl-log-10</code>,
-   <code>fl-1/log-10</code>,
    <code>fl-pi</code>,
    <code>fl-1/pi</code>,
    <code>fl-2pi</code>,
@@ -651,6 +737,17 @@ SPDX-License-Identifier: MIT
   value throughout this SRFI.
 </p>
 
+<div class="feature" id="fl-fast-fma">
+<span class="category">(srfi 276 ⟨library⟩)<br>value</span>
+<code class="signature"><a href="#fl-fast-fma">fl-fast-fl+*</a></code>
+</div>
+
+<p>
+  Bound to <code>#t</code> if <code>(fl+* x y z)</code> executes about
+  as fast as, or faster than, <code>(fl+ (fl* x y) z)</code>; bound to
+  <code>#f</code> otherwise.
+</p>
+
 <div class="feature" id="fl-precision">
 <span class="category">(srfi 276 ⟨library⟩)<br>value</span>
 <code class="signature"><a href="#fl-precision">fl-precision</a></code>
@@ -661,7 +758,7 @@ SPDX-License-Identifier: MIT
 </p>
 
 <div class="boxed">
-  <span class="boxed-tag">Note:</span> This is not the same as the
+  <span class="boxed-tag">Note</span>: This is not the same as the
   fixed number of bits in the machine format of the floating point
   representation. For example, binary64 numbers have a precision of 53,
   because the underlying number is 1 plus the 52 bits stored in the
@@ -675,9 +772,8 @@ SPDX-License-Identifier: MIT
 </div>
 
 <p>
-  The maximum exponent a normalized floating point number,
-  represented as (-1)<sup>s</sup>(<var>s</var><sub>0</sub>.<var>s</var><sub>1</sub>…)×2<sup>e</sup>
-  can have, represented as an exact integer. For binary64 numbers, this is 1023.
+  The maximum exponent a normalized floating point number can have,
+  represented as an exact integer. For binary64 numbers, this is 1023.
 </p>
 
 <div class="feature" id="fl-minimum-normalized-exponent">
@@ -686,9 +782,7 @@ SPDX-License-Identifier: MIT
 </div>
 
 <p>
-  The minimum exponent a normalized floating point number,
-  represented as (-1)<sup>s</sup>(<var>s</var><sub>0</sub>.<var>s</var><sub>1</sub>…)×2<sup>e</sup>
-  can have, represented as an exact integer. For IEEE 754 representations, this is
+  The minimum exponent a normalized floating point number can have, represented as an exact integer. For IEEE 754 representations, this is
   <code>(- 1 fl-maximum-exponent)</code>.
 </p>
 
@@ -804,7 +898,7 @@ SPDX-License-Identifier: MIT
 </div>
 <p>
   If <var>fl</var><sub>1</sub> = <var>fl</var><sub>2</sub>, returns
-  <var>fl</var><sub>2</sub>.
+  <var>fl</var><sub>2</sub>. If any argument is NaN, return a NaN.
 </p>
 
 <p>
@@ -814,6 +908,8 @@ SPDX-License-Identifier: MIT
 
 <pre
 ><code class="example-code">(f64:fladjacent 1.0 +inf.0) ⇒ #fl(binary64 1.0000000000000002)</code>
+<code class="example-code">(fladjacent -0.0 +0.0) ⇒ +0.0</code>
+<code class="example-code">(fladjacent +0.0 -0.0) ⇒ -0.0</code>
 </pre>
 
 <div class="feature" id="flcopysign">
@@ -844,8 +940,9 @@ SPDX-License-Identifier: MIT
 <p>
   Return <var>fl</var>×<var>b</var><sup><var>n</var></sup> correctly rounded.
   The allowed values of <var>n</var> are implementation-dependent and
-  may depend on <var>fl</var>. However, this procedure must round-trip
-  with <a href="#flnormalized-fraction-exponent"><code>flnormalized-fraction-exponent</code></a>.
+  may depend on <var>fl</var>. However, applying the values returned from
+  <a href="#flnormalized-fraction-exponent"><code>flnormalized-fraction-exponent</code></a>
+  to this procedure must return the same flonum (in the sense of <code>eqv?</code>).
 </p>
 
 <p>
@@ -871,19 +968,24 @@ SPDX-License-Identifier: MIT
   Returns two values, the integral part of <var>fl</var> as a flonum
   and the fractional part of <var>fl</var> as a flonum.
 </p>
-<p>
-  If <var>fl</var> is zero, the procedure returns <var>fl</var> for both
-  values.
-</p>
 
-<p>
-  If <var>fl</var> is infinity, the integral part is <var>fl</var>, and
-  the fractional part is <code>(flcopysign 0.0 <var>fl</var>)</code>.
-</p>
-
-<p>
-  If <var>fl</var> is a NaN, then a NaN is returned for both values.
-</p>
+<table>
+<tr><th>Operation</th><th>Side conditions</th><th>Exceptions</th><th>Return</th></tr>
+<tr><td><code>(flinteger-fraction <var>x</var>)</code></td>
+    <td><var>x</var> = ±0.0</td>
+    <td></td>
+    <td><var>x</var>, <var>x</var></td>
+</tr>
+<tr><td><code>(flinteger-fraction <var>x</var>)</code></td>
+    <td><var>x</var> infinite</td>
+    <td></td>
+    <td><var>x</var>, <code>(flcopysign 0.0 <var>x</var>)</td>
+</tr>
+<tr><td><code>(flinteger-fraction <var>x</var>)</code></td>
+    <td><var>x</var> NaN</td>
+    <td></td>
+    <td>NaN, NaN</td></tr>
+</table>
 
 <div class="feature" id="flexponent">
 <span class="category">(srfi 276 ⟨library⟩)<br>procedure</span>
@@ -891,18 +993,31 @@ SPDX-License-Identifier: MIT
 </div>
 
 <p>
-  Returns the exponent of <var>fl</var> as a flonum. If <var>fl</var>
-  is subnormal, it is treated as though it were normalized.
+  Returns
+  <math><mo>⌊</mo>
+        <msub><mi>log</mi><mi>b</mi></msub>
+        <mo>&#x2061;</mo><!--Invisible application-->
+        <mrow>
+         <mo>|</mo>
+         <mi>fl</mi>
+         <mo>|</mo>
+        </mrow>
+        <mo>⌋</mo>
+  </math>,
+  i.e the exponent of <var>fl</var> as an integer flonum. The argument
+  <var>fl</var> is always treated as if it was normalized.
 </p>
 
-<p>
-  If <var>fl</var> is zero, then negative infinity is returned and a
-  divide-by-zero floating point exception is signalled.
-</p>
-
-<p>
-  If <var>fl</var> is infinity, return <var>fl</var>.
-</p>
+<table>
+<tr><th>Operation</th><th>Side conditions</th><th>Exceptions</th><th>Return</th></tr>
+<tr><td><code>(flinteger-fraction ±0.0)</code></td>
+    <td></td>
+    <td>DivideByZero</td>
+    <td>&minus;∞</td></tr>
+<tr><td><code>(flinteger-fraction <var>x</var>)</code></td>
+    <td><var>x</var> infinite</td>
+    <td></td>
+    <td><code>+inf.0</code></td></tr></table>
 
 <div class="feature" id="flnormalized-fraction-exponent">
 <span class="category">(srfi 276 ⟨library⟩)<br>procedure</span>
@@ -914,18 +1029,21 @@ SPDX-License-Identifier: MIT
   <var>e</var> such that <var>fl</var> = <var>y</var>×<var>b</var><sup>n</sup>.
 </p>
 
-<p>
-  If <var>fl</var> is zero, returns <var>fl</var> and exact zero.
-</p>
-
-<p>
-  If <var>fl</var> is infinite, returns <var>fl</var> and an unspecified
-  integer.
-</p>
-
-<p>
-  If <var>fl</var> is NaN, returns a NaN and an unspecified integer.
-</p>
+<table>
+<tr><th>Operation</th><th>Side conditions</th><th>Exceptions</th><th>Return</th></tr>
+<tr><td><code>(flnormalized-fraction-exponent <var>x</var>)</code></td>
+    <td><var>x</var> = ±0.0</td>
+    <td></td>
+    <td><var>x</var>, 0</td></tr>
+<tr><td><code>(flnormalized-fraction-exponent <var>x</var>)</code></td>
+    <td><var>x</var> infinite</td>
+    <td></td>
+    <td><var>x</var>, unspecified integer</td></tr>
+<tr><td><code>(flnormalized-fraction-exponent <var>x</var>)</code></td>
+    <td><var>x</var> NaN</td>
+    <td></td>
+    <td>NaN, unspecified integer</td></tr>
+</table>
 
 <div class="boxed">
   <span class="boxed-tag">Note:</span>
@@ -982,7 +1100,8 @@ SPDX-License-Identifier: MIT
 </div>
 
 <p>Returns true if the sign of <var>fl</var> is negative, and false
-   otherwise.
+   otherwise. Note that signed zero is not negative, but has a negative
+   sign.
 </p>
 
 <div class="boxed">
@@ -990,6 +1109,17 @@ SPDX-License-Identifier: MIT
   In SRFI-144, the similar procedure <code>flsignbit</code> returned 1
   for a negative sign and 0 otherwise.
 </div>
+
+<div class="feature" id="flsign-positivep">
+<span class="category">(srfi 276 ⟨library⟩)<br>procedure</span>
+<code class="signature">(<a href="#flsign-positivep">flsign-positive?</a> <var>fl</var>)</code>
+</div>
+
+<p>Returns true if the sign of <var>fl</var> is positive, and false
+   otherwise. Note that signed zero is not positive, but has a positive
+   sign. This procedure is the opposite of
+   <a href="#flsign-negativep"><code>flsign-negative?</code></a>.
+</p>
 
 <h3 id="predicates"><a href="#predicates">&para;</a> Predicates</h3>
 
@@ -1053,11 +1183,12 @@ SPDX-License-Identifier: MIT
 
 <div class="feature" id="flneq">
 <span class="category">(srfi 276 ⟨library⟩)<br>procedure</span>
-<code class="signature">(<a href="#flneq" id="flonum-neq">fl!=?</a> <var>fl<sub>1</sub></var> <var>fl<sub>2</sub></var>)</code><br>
+<code class="signature">(<a href="#flneq" id="flonum-neq">fl!=?</a> <var>fl</var> …)</code><br>
 </div>
 
 <p>
-  This predicate returns <code>#t</code> when the two values are not equal.
+  This predicate returns <code>#t</code> if there exist two values in the list
+  that are not equal.
   When passed a signaling NaN, this procedure raises the invalidOperation
   floating-point exception. When given NaN values, this procedure returns
   <code>#f</code>.
@@ -1069,6 +1200,13 @@ SPDX-License-Identifier: MIT
   is not the same as
   <code>(fl!=? <var>fl<sub>1</sub></var> <var>fl<sub>2</sub></var>)</code>.
 </div>
+
+<pre
+><code class="example-code">(fl!=?)</code> ⇒ #f</code>
+<code class="example-code">(fl!=? 1.0)</code> ⇒ #f</code>
+<code class="example-code">(fl!=? 1.0 2.0)</code> ⇒ #t</code>
+<code class="example-code">(fl!=? 1.0 1.0)</code> ⇒ #f</code>
+<code class="example-code">(fl!=? +nan.0 +nan.0)</code> ⇒ #f</code></pre>
 
 <div class="feature" id="flonum-total-comp">
 <span class="category">(srfi 276 ⟨library⟩)<br>procedure</span>
@@ -1157,6 +1295,17 @@ SPDX-License-Identifier: MIT
 <p>
   This procedure returns <code>#t</code> if one of its arguments is
   a NaN, and <code>#f</code> otherwise.
+</p>
+
+<div class="feature" id="florderedp">
+<span class="category">(srfi 276 ⟨library⟩)<br>procedure</span>
+<code class="signature">(<a href="#florderedp">flordered?</a> <var>fl</var><sub>1</sub> <var>fl</var><sub>2</sub>)</code>
+</div>
+
+<p>
+  This procedure returns <code>#t</code> if neither argument is NaN,
+   and <code>#f</code> otherwise. This procedure is the inverse of
+   <a href="#flunorderedp"><code>flunordered?</code></a>.
 </p>
 
 <div class="feature" id="flintegerp">
@@ -1307,20 +1456,18 @@ SPDX-License-Identifier: MIT
 </p>
 
 <p>
-  For the maximum procedures, if no value is given, they return
-  negative infinity. For the minimum procedures, if no value is
-  given, they return positive infinity.
+  For <code>flmax</code> and <code>flmax-filter-nans</code>, if no
+  value is given, they return negative infinity. For <code>flmin</code>
+  and <code>flmin-filter-nans</code> procedures, if no value is given,
+  they return positive infinity. For the procedures with <code>abs</code>
+  in them, if they are given no values, they return positive zero.
 </p>
 
 <p>
-  If <code>flmax</code> or <code>flmin</code> have a NaN in any of its
-  arguments, then a NaN is returned.
-</p>
-
-<p>
-  If either <code>flmax-filter-nans</code> or <code>flmin-filter-nans</code>
-  have a NaN in its arguments, it is ignored unless all inputs are NaNs,
-  in which case a NaN is returned.
+  If the procedure has <code>filter-nans</code> in its name, then any
+  NaN arguments in the input are ignored, unless the input are all NaNs,
+  in which case a NaN is returned. If the procedure doesn't ahve that, then
+  the procedure will return a NaN when any argument is a NaN.
 </p>
 
 <p>The procedures with <code>abs</code> in the name compare two non-NaN
@@ -1376,9 +1523,8 @@ SPDX-License-Identifier: MIT
 
 <p>
   When given two arguments, this procedure always returns the correctly
-  rounded value. When given more than two arguments, the implementation
-  may rearrange arguments or use an algorithm like compensated summation
-  to minimize error.
+  rounded value. When given more than two arguments, the function associates
+  to the left.
 </p>
 
 <div class="feature">
@@ -1388,9 +1534,13 @@ SPDX-License-Identifier: MIT
 
 <p>
   When one argument is given, the value is returned with the sign bit
-  flipped.
-  When more than one argument is given, the procedure is the equivalent
-  of <code>(fl+ <var>fl<sub>1</sub></var> (fl- <var>fl<sub>2</sub></var>) …)</code>.
+  flipped. When one argument is given, the action on a NaN is
+  implementation-defined.
+</p>
+<p>
+  When two or more arguments are given, calculates the difference of those
+  arguments. The result is equivalent to <code>(fl+ <var>fl<sub>1</sub></var>
+(fl- <var>fl<sub>2</sub></var>) &hellip;)</code>.
 </p>
 
 <div class="feature">
@@ -1417,9 +1567,8 @@ SPDX-License-Identifier: MIT
 
 <p>
   When given two arguments, this procedure always returns the correctly
-  rounded value. When given more than two arguments, the implementation
-  may rearrange arguments or use an alternative algorithm to minimize
-  error.
+  rounded value. When given more than two arguments, the function associates
+  to the left.
 </p>
 
 <div class="feature">
@@ -1441,16 +1590,20 @@ SPDX-License-Identifier: MIT
 
 <ol>
 <li>If any argument is a NaN, NaN is returned.</li>
-<li>Infinity divided by a finite number returns an infinity.</li>
-<li>Infinity divided by a finite number returns an infinity and
-    signals the invalid operation exception.</li>
-<li>Zero divided by zero returns a NaN.</li>
-<li>Infinity divided by infinity returns a NaN.</li>
+<li>Infinity divided by a finite number returns an infinity with the
+    appropriate sign.</li>
+<li>A finite number divided by zero will return an appropriately signed
+    infinity and raises the invalid operation exception.</li>
+<li>Zero divided by zero returns a NaN and signals the invalid
+operation exception.</li>
+<li>Infinity divided by infinity returns a NaN and signals the invalid
+operation exception.</li>
 </ol>
 
 <p>
   When given one or two arguments, the correctly rounded value is
-  returned.
+  returned. When given more than two arguments, the function associates
+  to the left.
 </p>
 
 <div class="feature">
@@ -1459,12 +1612,13 @@ SPDX-License-Identifier: MIT
 </div>
 
 <p>
-  Return <var>fl<sub>1</sub></var>*<var>fl<sub>2</sub></var>+<var>fl<sub>3</sub></var>
+  Return <var>fl<sub>1</sub></var>&times;<var>fl<sub>2</sub></var>+<var>fl<sub>3</sub></var>
   correctly rounded.
 </p>
 
 <p>
-  When the value of the operation is exactly zero, it has the same rule
+  When the value of the operation when operated on exact versions of the
+  input arguments evaluates to zero, it has the same rule
   for the sign of zero as the sum operation. If the value is rounded to
   zero, it takes the sign of the exact result.
 </p>
@@ -1491,7 +1645,7 @@ SPDX-License-Identifier: MIT
 </div>
 
 <p>
-  Returns |<var>fl<sub>1</sub></var> - <var>fl<sub>2</sub></var>|.
+  Returns |<var>fl<sub>1</sub></var> &minus; <var>fl<sub>2</sub></var>|.
   The behavior on infinities, zeroes, and NaNs is equivalent to the behavior
   of <code>(flabs (fl- <var>fl<sub>1</sub></var> <var>fl<sub>2</sub></var>))</code>.
 </p>
@@ -1502,7 +1656,7 @@ SPDX-License-Identifier: MIT
 </div>
 
 <p>
-  Let <var>x</var> = <var>fl<sub>1</sub></var> - <var>fl<sub>2</sub></var>.
+  Let <var>x</var> = <var>fl<sub>1</sub></var> &minus; <var>fl<sub>2</sub></var>.
   If <var>x</var> is positive, return it. If <var>x</var> is a NaN, return
   that NaN. Otherwise return positive zero.
 </p>
@@ -1523,11 +1677,11 @@ SPDX-License-Identifier: MIT
 </div>
 
 <p>
-  Returns the numerator/denominator of <var>fl</var> as a flonum.
+  Returns the numerator/denominator of <var>fl</var> as integer flonums.
   The numerator and denominator must represent <var>fl</var> in
-  lowest terms, although any pair of numbers that when divided
-  yield <var>fl</var> in the current rounding mode is acceptable,
-  subject to the constraints below.
+  lowest terms, although any pair of numbers that when divided yield
+  <var>fl</var> to the closest approximation in the current rounding
+  mode is acceptable, subject to the constraints below.
 </p>
 
 <p>
@@ -1549,7 +1703,8 @@ SPDX-License-Identifier: MIT
 <p>
   These procedures find an integer near <var>fl</var>.
   When given an infinity or zero, these procedures always return that value.
-  When given a NaN, they return a NaN.
+  When given a NaN, they return a NaN. The sign of the returned value is
+  the sign of the input value, when the input is not a NaN.
 </p>
 
 <p>
@@ -1627,6 +1782,8 @@ SPDX-License-Identifier: MIT
 <div class="feature">
 <span class="category">(srfi 276 ⟨library⟩)<br>procedure</span>
 <code class="signature">(<a href="#fltruncate-quotient" id="fltruncate-quotient">fltruncate-quotient</a> <var>fl<sub>1</sub></var> <var>fl<sub>2</sub></var>)</code><br>
+<code class="signature">(flquotient <var>fl<sub>1</sub></var> <var>fl<sub>2</sub></var>)</code><br>
+<code class="signature">(flremainder <var>fl<sub>1</sub></var> <var>fl<sub>2</sub></var>)</code><br>
 <code class="signature">(<a href="#fltruncate-remainder" id="fltruncate-remainder">fltruncate-remainder</a> <var>fl<sub>1</sub></var> <var>fl<sub>2</sub></var>)</code><br>
 </div>
 
@@ -1641,12 +1798,11 @@ SPDX-License-Identifier: MIT
   is always correctly rounded.
 </p>
 
-<div class="boxed">
 <p>
-  <span class="boxed-tag">Rationale:</span>
-  These procedures are renamed from
-  <code>flquotient</code> and <code>flremainder</code> in SRFI 144.
-</p></div>
+  <code>flquotient</code> is a synonym for <code>fltruncate-quotient</code>,
+  and
+  <code>flremainder</code> is a synonym for <code>fltruncate-remainder</code>.
+</p>
 
 <div class="feature">
 <span class="category">(srfi 276 ⟨library⟩)<br>procedure</span>
@@ -1659,10 +1815,17 @@ SPDX-License-Identifier: MIT
 </p>
 
 <p>
-  This procedure returns two values: a correctly signed integer whose
-  magnitude is congruent to the magnitude of <var>q</var> modulo
-  <var>k</var>, where <var>k</var> ≥ 3, and the correctly rounded
-  remainder.
+  This procedure returns two values: the first is the correctly rounded
+  remainder as a flonum, and the second is a correctly signed exact integer
+  whose magnitude is congruent to the magnitude of <var>q</var> modulo
+  <var>k</var>, where <var>k</var> ≥ 3.
+</p>
+
+<p>
+  If the arguments to this procedure are a special case of the remainder
+  functions, then the remainder argument is the value specified by that
+  special case. In addition, if the remainder part is a NaN, then the
+  integer part is an unspecified integer.
 </p>
 
 <div class="feature">
@@ -1695,10 +1858,17 @@ SPDX-License-Identifier: MIT
   <var>a</var> is respectively the mathematical constant <var>e</var>, 2, or 10.
 </p>
 
+
 <p>
-  If the argument is positive infinity, the result is positive infinity.
-  If the argument is negative infinity, the result is positive 1.
+  The table uses <code>E</code> to stand for any of
+  <code>flexp</code>, <code>flexp2</code>, or <code>flexp10</code>.
 </p>
+<table>
+<tr><th>Operation</th><th>Side conditions</th><th>Exceptions</th><th>Return</th></tr>
+<tr><td><code>(E +inf.0)</code></td><td></td><td></td><td><code>+inf.0</code></td></tr>
+<tr><td><code>(E -inf.0)</code></td><td></td><td></td><td><code>0</code></td></tr>
+<tr><td><code>(E ±0.0)</code></td><td></td><td></td><td><code>1</code></td></tr>
+</table>
 
 <div class="feature">
 <span class="category">(srfi 276 ⟨library⟩)<br>procedure</span>
@@ -1716,9 +1886,15 @@ SPDX-License-Identifier: MIT
 </p>
 
 <p>
-  If the argument is positive infinity, the result is positive infinity.
-  If the argument is negative infinity, the result is positive 0.
+  The table uses <code>E-1</code> to stand for any of
+  <code>flexp-1</code>, <code>flexp2-1</code>, or <code>flexp10-1</code>.
 </p>
+<table>
+<tr><th>Operation</th><th>Side conditions</th><th>Exceptions</th><th>Return</th></tr>
+<tr><td><code>(E-1 +inf.0)</code></td><td></td><td></td><td><code>+inf.0</code></td></tr>
+<tr><td><code>(E-1 -inf.0)</code></td><td></td><td></td><td><code>-1</code></td></tr>
+<tr><td><code>(E-1 ±0.0)</code></td><td></td><td></td><td><code>±0.0</code></td></tr>
+</table>
 
 <div class="feature">
 <span class="category">(srfi 276 ⟨library⟩)<br>procedure</span>
@@ -1742,6 +1918,16 @@ SPDX-License-Identifier: MIT
     <td>divideByZero</td>
     <td><code>±inf.0</code></td>
 </tr>
+<tr><td><code>(flexpt ±0.0 <var>y</var>)</code></td>
+    <td><var>y</var> &lt; 0 and <var>y</var> finite, not odd</td>
+    <td>divideByZero</td>
+    <td><code>+inf.0</code></td>
+</tr>
+<tr><td><code>(flexpt <var>x</var> <var>y</var>)</code></td>
+    <td>finite <var>x</var> &lt; 0, finite non-integer <var>y</var></td>
+    <td>invalid operation</td>
+    <td>NaN</td>
+</tr>
 <tr><td><code>(flexpt ±0.0 −inf.0)</code></td>
     <td></td>
     <td></td>
@@ -1755,7 +1941,12 @@ SPDX-License-Identifier: MIT
 <tr><td><code>(flexpt ±0.0 <var>y</var>)</code></td>
     <td><var>y</var> &gt; 0, <var>y</var> odd</td>
     <td></td>
-    <td><code>±inf.0</code></td>
+    <td><code>±0.0</code></td>
+</tr>
+<tr><td><code>(flexpt ±0.0 y)</code></td>
+<td><var>y</var> &gt; 0, <var>y</var> finite and not odd</td>
+<td></td>
+<td><code>+0.0</code></td>
 </tr>
 <tr><td><code>(flexpt −1.0 ±inf.0)</code></td>
     <td></td>
@@ -1817,21 +2008,6 @@ SPDX-License-Identifier: MIT
  <td></td>
  <td><code>+inf.0</code></td>
 </tr>
-<tr><td><code>(flexpt ±0.0 <var>y</var>)</code></td>
-    <td><var>y</var> &lt; 0 and <var>y</var> finite, not odd</td>
-    <td>divideByZero</td>
-    <td><code>+inf.0</code></td>
-</tr>
-<tr><td><code>(flexpt ±0.0 y)</code></td>
-<td><var>y</var> &gt; 0, <var>y</var> finite and not odd</td>
-<td></td>
-<td><code>+0.0</code></td>
-</tr>
-<tr><td><code>(flexpt <var>x</var>, <var>y</var>)</code></td>
-    <td>finite <var>x</var> &lt; 0, finite non-integer <var>y</var></td>
-    <td>invalid operation</td>
-    <td>NaN</td>
-</tr>
 </table>
 
 <p>
@@ -1869,11 +2045,17 @@ SPDX-License-Identifier: MIT
 </p>
 
 <p>
-  If the argument is positive infinity, the result is positive infinity.
-  If the argument is negative 1, the result is negative infinity, and
-  a divide-by-zero exception is raised.  If the argument is less than
-  negative 1, NaN is returned, and an invalid exception is raised.
+  The following special case apply, where <code>L</code> is
+  <code>fllog</code>, <code>fllog2</code>, or
+  <code>fllog10</code>.
 </p>
+
+<table>
+<tr><th>Operation</th><th>Side conditions</th><th>Exceptions</th><th>Return</th></tr>
+<tr><td><code>(L +inf.0)</code></td><td></td><td></td><td><code>+inf.0</code></td></tr>
+<tr><td><code>(L ±0.0)</code></td><td></td><td>divideByZero</td><td><code>-inf.0</code></td></tr>
+<tr><td><code>(L x)</code></td><td><var>x</var> &lt; 0</td><td>invalidOperation</td><td>NaN</td></tr>
+</table>
 
 <div class="feature">
 <span class="category">(srfi 276 ⟨library⟩)<br>procedure</span>
@@ -1891,12 +2073,17 @@ SPDX-License-Identifier: MIT
 </p>
 
 <p>
-  If the argument is positive infinity, the result is positive infinity.
-  If the argument is zero, the result is negative infinity, and a divide-by-zero
-  exception is raised.
-  If the argument is negative, NaN is returned, and an invalid exception is
-  raised.
+  The following special case apply, where <code>L+1</code> is
+  <code>fllog+1</code>, <code>fllog2+1</code>, or
+  <code>fllog10+1</code>.
 </p>
+
+<table>
+<tr><th>Operation</th><th>Side conditions</th><th>Exceptions</th><th>Return</th></tr>
+<tr><td><code>(L+1 +inf.0)</code></td><td></td><td></td><td><code>+inf.0</code></td></tr>
+<tr><td><code>(L+1 -1.0)</code></td><td></td><td>divideByZero</td><td><code>-inf.0</code></td></tr>
+<tr><td><code>(L+1 x)</code></td><td><var>x</var> &lt; &minus;1</td><td>invalidOperation</td><td>NaN</td></tr>
+</table>
 
 <div class="boxed">
 <p>
@@ -1927,6 +2114,12 @@ SPDX-License-Identifier: MIT
 <p>Calculate <var>fl</var><sup>1/3</sup>. When passed a zero or an
    infinity, returns the argument.</p>
 
+<table>
+<tr><th>Operation</th><th>Side conditions</th><th>Exceptions</th><th>Return</th></tr>
+<tr><td><code>(flcbrt ±0.0)</code></td><td></td><td></td><td><code>±0.0</code></td></tr>
+<tr><td><code>(flcbrt ±inf.0)</code></td><td></td><td></td><td><code>±inf.0</code></td></tr>
+</table>
+
 <div class="feature">
 <span class="category">(srfi 276 ⟨library⟩)<br>procedure</span>
 <code class="signature">(<a href="#flcompound"   id="flcompound">flcompound</a> <var>fl</var> <var>n</var>)</code><br>
@@ -1946,7 +2139,7 @@ SPDX-License-Identifier: MIT
     <td>1.0</td>
 </tr>
 <tr><td><code>(flcompound <var>x</var> <var>n</var>)</code></td>
-    <td><var>x</var> &lt; -1, <var>n</var> ≠ 0</td>
+    <td><var>x</var> &lt; -1</td>
     <td>invalidOperation</td>
     <td>NaN</td>
 </tr>
@@ -1987,14 +2180,14 @@ SPDX-License-Identifier: MIT
 </p>
 
 <p>
-  If one argument is zero, the returned value is the absolute value of the
-  other argument.
+  The following special cases also apply when the arguments are flipped.
 </p>
 
-<p>
-  If one argument is infinity, then the returned value is infinity, even if
-  another value is NaN.
-</p>
+<table>
+<tr><th>Operation</th><th>Side conditions</th><th>Exceptions</th><th>Return</th></tr>
+<tr><td><code>(flhypot ±0.0 x)</code></td><td></td><td></td><td><code>(flabs x)</code></td></tr>
+<tr><td><code>(flhypot ±inf.0 x)</code></td><td></td><td></td><td><code>+inf.0</code></td></tr>
+</table>
 
 <div class="feature">
 <span class="category">(srfi 276 ⟨library⟩)<br>procedure</span>
@@ -2002,12 +2195,15 @@ SPDX-License-Identifier: MIT
 </div>
 
 <p>
-  Calculates 1/√<var>fl</var>. When passed zero, returns the appropriately
-  signed infinity and raises the divideByZero floating point exception.
-  When passed positive infinity, returns positive zero. When passed a
-  negative number, returns a NaN and raises the invalidOperation floating
-  point exception.
+  Calculates 1/√<var>fl</var>.
 </p>
+
+<table>
+<tr><th>Operation</th><th>Side conditions</th><th>Exceptions</th><th>Return</th></tr>
+<tr><td><code>(flrsqrt ±0.0)</code></td><td></td><td>divdeByZero</td><td><code>±inf.0</code></td></tr>
+<tr><td><code>(flrsqrt +inf.0)</code></td><td></td><td></td><td><code>0.0</code></td></tr>
+<tr><td><code>(flrsqrt x)</code></td><td><var>x</var> &lt; 0</td><td></td><td>NaN</td>
+</table>
 
 <div class="boxed">
 <p>
@@ -2022,13 +2218,23 @@ SPDX-License-Identifier: MIT
 </div>
 
 <p>
-  Returns √<var>fl</var>. This function always returns a correctly rounded
-  result. When passed a zero, returns that zero. When passed positive
-  infinity, returns positive infinity. When passed a negative number,
-  returns NaN and raises the invalidOperation floating-point exception.
+  Returns √<var>fl</var>.
 </p>
 
+<table>
+<tr><th>Operation</th><th>Side conditions</th><th>Exceptions</th><th>Return</th></tr>
+<tr><td><code>(flsqrt ±0.0)</code></td><td></td><td></td><td><code>±0.0</code></td></tr>
+<tr><td><code>(flsqrt +inf.0)</code></td><td></td><td></td><td><code>+inf.0</code></td></tr>
+<tr><td><code>(flsqrt x)</code></td><td><var>x</var> &lt; 0</td><td></td><td>NaN</td>
+</table>
+
 <h3 id="trigonometric"><a href="#trigonometric">&para;</a> Trigonometric functions</h3>
+
+<p>
+  All procedures in this section return a NaN when given an infinite
+  argument.
+</p>
+
 <div class="feature">
 <span class="category">(srfi 276 ⟨library⟩)<br>procedure</span>
 <code class="signature">(<a href="#flsin" id="flsin">flsin</a> <var>fl</var>)</code><br>
@@ -2042,47 +2248,42 @@ SPDX-License-Identifier: MIT
 </p>
 
 <p>
-  When an infinity is passed to any of these functions, NaN is returned and
-  the invalidOperation floating point exception is raised.
+  The procedures <code>flsin</code> and <code>fltan</code> should be
+  odd and <code>flcos</code> should be even.
 </p>
 
-<p>
-  When sin or tan are given zero, return that zero.
-</p>
+<table>
+<tr><th>Operation</th><th>Side conditions</th><th>Exceptions</th><th>Return</th></tr>
+<tr><td><code>(flsin ±0.0)</code></td><td></td><td></td><td><code>±0.0</code></td></tr>
+<tr><td><code>(fltan ±0.0)</code></td><td></td><td></td><td><code>±0.0</code></td></tr>
+</table>
 
 <div class="feature" id="flsinpi">
 <span class="category">(srfi 276 ⟨library⟩)<br>procedure</span>
 <code class="signature">(<a href="#sinpi" id="sinpi">flsinpi</a> <var>fl</var>)</code><br>
 </div>
 
-<p>Return sin(π<var>fl</var>).</p>
+<p>Return sin(π<var>fl</var>). This procedure should be odd.</p>
 
-<p>When given a zero, return that zero. When given a positive integer,
-   return positive zero. When given a negative integer, return negative
-   zero.
-</p>
-
-<p>
-  When an infinity is passed to this function, NaN is returned and
-  the invalidOperation floating point exception is raised.
-</p>
+<table>
+<tr><th>Operation</th><th>Side conditions</th><th>Exceptions</th><th>Return</th></tr>
+<tr><td><code>(flsinpi ±0.0)</code></td><td></td><td></td><td><code>±0.0</code></td></tr>
+<tr><td><code>(flsinpi n)</code></td><td><var>n</var> &gt; 0, <var>n</var> integer</td><td></td><td><code>+0.0</code></td></tr>
+<tr><td><code>(flsinpi n)</code></td><td><var>n</var> &lt; 0, <var>n</var> integer</td><td></td><td><code>-0.0</code></td></tr>
+</table>
 
 <div class="feature" id="flcospi">
 <span class="category">(srfi 276 ⟨library⟩)<br>procedure</span>
 <code class="signature">(<a href="#cospi" id="cospi">flcospi</a> <var>fl</var>)</code><br>
 </div>
 
-<p>Return cos(π<var>fl</var>).</p>
+<p>Return cos(π<var>fl</var>). This procedure should be even.</p>
 
-<p>
-  Let <var>fl</var> = <var>n</var> + ½, where <var>n</var> is an
-  integer. Then this function returns positive zero.
-</p>
-
-<p>
-  When an infinity is passed to this function, NaN is returned and
-  the invalidOperation floating point exception is raised.
-</p>
+<table>
+<tr><th>Operation</th><th>Side conditions</th><th>Exceptions</th><th>Return</th></tr>
+<tr><td><code>(flcospi ±0.0)</code></td><td></td><td></td><td><code>±0.0</code></td></tr>
+<tr><td><code>(flcospi x)</code></td><td><var>x</var> = <var>n</var> + ½, <var>n</var> integer</td><td></td><td><code>+0.0</code></td></tr>
+</table>
 
 <div class="feature" id="fltanpi">
 <span class="category">(srfi 276 ⟨library⟩)<br>procedure</span>
@@ -2090,7 +2291,7 @@ SPDX-License-Identifier: MIT
 </div>
 
 <p>
-  Return the value of tan(π<var>fl</var>). The following special cases apply:
+  Return the value of tan(π<var>fl</var>). This procedure should be odd.
 </p>
 
 <table>
@@ -2108,17 +2309,27 @@ SPDX-License-Identifier: MIT
 <tr><td><code>(fltanpi <var>n</var>)</code></td>
     <td><var>n</var> is positive and odd, or negative and even</td>
     <td></td>
-    <td><code>+0.0</code></td>
+    <td><code>-0.0</code></td>
 </tr>
 <tr><td><code>(fltanpi <var>x</var>)</code></td>
-    <td><var>x</var> = <var>n</var> + 1/2 for even <var>n</var></td>
+    <td><var>x</var> = <var>n</var> + ½ for even and positive <var>n</var></td>
     <td>divideByZero</td>
     <td><code>+inf.0</code></td>
 </tr>
 <tr><td><code>(fltanpi <var>x</var>)</code></td>
-    <td><var>x</var> = <var>n</var> + 1/2 for odd <var>n</var></td>
+    <td><var>x</var> = <var>n</var> - ½ for odd and negative <var>n</var></td>
     <td>divideByZero</td>
     <td><code>+inf.0</code></td>
+</tr>
+<tr><td><code>(fltanpi <var>x</var>)</code></td>
+    <td><var>x</var> = <var>n</var> + ½ for odd and positive <var>n</var></td>
+    <td>divideByZero</td>
+    <td><code>-inf.0</code></td>
+</tr>
+<tr><td><code>(fltanpi <var>x</var>)</code></td>
+    <td><var>x</var> = <var>n</var> - ½ for even and negative <var>n</var></td>
+    <td>divideByZero</td>
+    <td><code>-inf.0</code></td>
 </tr>
 </table>
 
@@ -2132,12 +2343,15 @@ SPDX-License-Identifier: MIT
 
 <p>
   Compute the arcsine of the argument.
-  When given a zero, return that zero. When given a value whose absolute
-  value is greater than 1, return a NaN and raise the invalidOperation
-  floating point exception.
+  The function <code>flasinpi</code> is defined as asin(<var>fl</var>)/π and has
+  the same special cases. These functions should be odd.
 </p>
 
-<p>The function <code>flasinpi</code> is defined as asin(<var>fl</var>)/π.</p>
+<table>
+<tr><th>Operation</th><th>Side conditions</th><th>Exceptions</th><th>Return</th></tr>
+<tr><td><code>(asin ±0.0)</code></td><td></td><td></td><td><code>±0.0</code></td></tr>
+<tr><td><code>(asin x)</code></td><td>|<var>x</var>| &gt; 1.0</td><td>invalidOperation</td><td>NaN</td></tr>
+</table>
 
 <div class="feature">
 <span class="category">(srfi 276 ⟨library⟩)<br>procedure</span>
@@ -2147,23 +2361,26 @@ SPDX-License-Identifier: MIT
 
 <p>
   Compute the arccosine of the argument.
-  When given a zero, positive one. When given a value whose absolute
-  value is greater than 1, return a NaN and raise the invalidOperation
-  floating point exception.
+  The function <code>flacospi</code> is defined as acos(<var>fl</var>)/π and has the
+  same special cases.
 </p>
-<p>
-  The function <code>flacospi</code> is defined as acos(<var>fl</var>)/π.
-</p>
+
+<table>
+<tr><th>Operation</th><th>Side conditions</th><th>Exceptions</th><th>Return</th></tr>
+<tr><td><code>(acos +1.0)</code></td><td></td><td></td><td><code>±0.0</code></td></tr>
+<tr><td><code>(acos x)</code></td><td>|<var>x</var>| &gt; 1.0</td><td>invalidOperation</td><td>NaN</td></tr>
+</table>
 
 <div class="feature">
 <span class="category">(srfi 276 ⟨library⟩)<br>procedure</span>
-<code class="signature">(<a href="#flatan" id="flatan">flatan</a> [<var>fl<sub>1</sub></var>] <var>fl<sub>1</sub></var>)</code><br>
-<code class="signature">(<a href="#flatanpi" id="flatanpi">flatanpi</a> [<var>fl<sub>1</sub></var>] <var>fl<sub>1</sub></var>)</code><br>
+<code class="signature">(<a href="#flatan" id="flatan">flatan</a> [<var>fl<sub>1</sub></var>] <var>fl<sub>2</sub></var>)</code><br>
+<code class="signature">(<a href="#flatanpi" id="flatanpi">flatanpi</a> [<var>fl<sub>1</sub></var>] <var>fl<sub>2</sub></var>)</code><br>
 </div>
 
 <p>
   When given one argument, compute the arctan of the argument. At
-  infinity, return the closest approximation to ±π/2.
+  infinity, return the closest approximation to ±π/2. These functions
+  should be odd.
 </p>
 
 <p>
@@ -2177,7 +2394,7 @@ SPDX-License-Identifier: MIT
 <tr><th>Operation</th><th>Side conditions</th><th>Return</th></tr>
 <tr><td><code>(flatan <var>y</var> -inf.0)</code></td>
     <td>finite nonzero <var>y</var></td>
-    <td><code>(flcopysign π/2 <var>y</var>)</code></td>
+    <td><code>(flcopysign π <var>y</var>)</code></td>
 </tr>
 <tr><td><code>(flatan <var>y</var> +inf.0)</code></td>
     <td>finite nonzero <var>y</var></td>
@@ -2208,33 +2425,42 @@ SPDX-License-Identifier: MIT
 </div>
 
 <p>
-  Return sinh(<var>fl</var>).
+  Return sinh(<var>fl</var>). This function should be odd.
 </p>
 
-<p>When passed zero, return that zero. When passed infinity, return that
-infinity.</p>
+<table>
+<tr><th>Operation</th><th>Side conditions</th><th>Return</th></tr>
+<tr><td><code>(flsinh ±0.0)</code></td><td></td><td></td><td><code>±0.0</code></td></tr>
+<tr><td><code>(flsinh ±inf.0)</code></td><td></td><td></td><td><code>±inf.0</code></td></tr>
+</table>
 
 <div class="feature">
 <span class="category">(srfi 276 ⟨library⟩)<br>procedure</span>
 <code class="signature">(<a href="#flcosh" id="flcosh">flcosh</a> <var>fl</var>)</code>
 </div>
 <p>
-  Return cosh(<var>fl</var>).
+  Return cosh(<var>fl</var>). This function should be even.
 </p>
 
-<p>When passed zero, return 1. When passed infinity, return positive
-infinity.</p>
+<table>
+<tr><th>Operation</th><th>Side conditions</th><th>Return</th></tr>
+<tr><td><code>(flcosh ±0.0)</code></td><td></td><td></td><td><code>1.0</code></td></tr>
+<tr><td><code>(flcosh ±inf.0)</code></td><td></td><td></td><td><code>+inf.0</code></td></tr>
+</table>
 
 <div class="feature">
 <span class="category">(srfi 276 ⟨library⟩)<br>procedure</span>
 <code class="signature">(<a href="#fltanh" id="fltanh">fltanh</a> <var>fl</var>)</code>
 </div>
 <p>
-  Return tanh(<var>fl</var>).
+  Return tanh(<var>fl</var>). This function should be odd.
 </p>
 
-<p>When passed zero, return that zero. When passed infinity, return
-<code>(flcopysign 1.0 <var>fl</var>)</code>.</p>
+<table>
+<tr><th>Operation</th><th>Side conditions</th><th>Return</th></tr>
+<tr><td><code>(fltanh ±0.0)</code></td><td></td><td></td><td><code>±0.0</code></td></tr>
+<tr><td><code>(fltanh ±inf.0)</code></td><td></td><td></td><td><code>±1.0</code></td></tr>
+</table>
 
 <div class="feature">
 <span class="category">(srfi 276 ⟨library⟩)<br>procedure</span>
@@ -2242,11 +2468,14 @@ infinity.</p>
 </div>
 
 <p>
-  Return asinh(<var>fl</var>).
+  Return asinh(<var>fl</var>). This function should be odd.
 </p>
 
-<p>When passed zero, return that zero. When passed infinity, return that
-infinity.</p>
+<table>
+<tr><th>Operation</th><th>Side conditions</th><th>Return</th></tr>
+<tr><td><code>(flasinh ±0.0)</code></td><td></td><td></td><td><code>±0.0</code></td></tr>
+<tr><td><code>(flasinh ±inf.0)</code></td><td></td><td></td><td><code>±inf.0</code></td></tr>
+</table>
 
 <div class="feature">
 <span class="category">(srfi 276 ⟨library⟩)<br>procedure</span>
@@ -2257,21 +2486,19 @@ infinity.</p>
   Return acosh(<var>fl</var>).
 </p>
 
-<p>When passed 1, return positive zero. When passed positive infinity,
-   return positive infinity.
-</p>
-
-<p>
-  When passed a value less than 1, return a NaN and raise the
-  invalidOperation floating-point exception.
-</p>
+<table>
+<tr><th>Operation</th><th>Side conditions</th><th>Return</th></tr>
+<tr><td><code>(flacosh 1.0)</code></td><td></td><td></td><td><code>0.0</code></td></tr>
+<tr><td><code>(flacosh +inf.0)</code></td><td></td><td></td><td><code>+inf.0</code></td></tr>
+<tr><td><code>(flacosh x)</code></td><td><var>x</var> &lt; 1.0</td><td>invalidOperation</td><td>NaN</td></tr>
+</table>
 
 <div class="feature">
 <span class="category">(srfi 276 ⟨library⟩)<br>procedure</span>
 <code class="signature">(<a href="#flatanh" id="flatanh">flatanh</a> <var>fl</var>)</code>
 </div>
 <p>
-  Return acosh(<var>fl</var>). The following special cases apply:
+  Return atanh(<var>fl</var>). The function should be odd. The following special cases apply:
 </p>
 <table>
 <tr><th>Operation</th><th>Side conditions</th><th>Exceptions</th><th>Return</th></tr>
@@ -2315,26 +2542,26 @@ infinity.</p>
   <msubsup>
     <mo> &int; </mo>
     <mn> 0 </mn>
-    <mn> 1 </mn>
+    <mi> x </mi>
   </msubsup>
   <mrow>
     <msup>
       <mi> e </mi>
       <mrow>
         <mo>&minus;</mo>
-        <msup><mi>x</mi><mn>2</mn></msup>
+        <msup><mi>t</mi><mn>2</mn></msup>
       </mrow>
     </msup>
     <mo> &InvisibleTimes; </mo>
     <mrow>
       <mo> d </mo>
-      <mi> x </mi>
+      <mi> t </mi>
     </mrow>
   </mrow>
 </mrow>
 </math>
 
-<p>The following special cases apply:</p>
+<p>This function should be odd. The following special cases apply:</p>
 
 <table>
 <tr><th>Operation</th><th>Side conditions</th><th>Return</th></tr>
@@ -2357,6 +2584,10 @@ infinity.</p>
    The following special cases apply:</p>
 <table>
 <tr><th>Operation</th><th>Side conditions</th><th>Return</th></tr>
+<tr><td><code>(flerfc 0.0)</code></td>
+    <td></td>
+    <td><code>+1.0</code></td>
+</tr>
 <tr><td><code>(flerfc -inf.0)</code></td>
     <td></td>
     <td><code>+2.0</code></td>
@@ -2422,7 +2653,7 @@ infinity.</p>
 
 <div class="feature">
 <span class="category">(srfi 276 ⟨library⟩)<br>procedure</span>
-<code class="signature">(<a id="fllog-gamma" href="#fllog-gamma">fllog-gamma</a> <var>fl</var>)</code>
+<code class="signature">(<a id="flloggamma" href="#flloggamma">flloggamma</a> <var>fl</var>)</code>
 </div>
 
 <p>Returns two values: log<sub>e</sub>|Γ(<var>fl</var>)|
@@ -2431,32 +2662,42 @@ infinity.</p>
 
 <table>
 <tr><th>Operation</th><th>Side conditions</th><th>Exceptions</th><th>Return</th></tr>
-<tr><td><code>(fllog-gamma 1.0)</code></td>
+<tr><td><code>(flloggamma 1.0)</code></td>
     <td></td>
     <td></td>
-    <td><code>0.0</code></td>
+    <td><code>0.0 1.0</code></td>
 </tr>
-<tr><td><code>(fllog-gamma 2.0)</code></td>
+<tr><td><code>(flloggamma 2.0)</code></td>
     <td></td>
     <td></td>
-    <td><code>0.0</code></td>
+    <td><code>0.0 1.0</code></td>
 </tr>
-<tr><td><code>(fllog-gamma <var>x</var>)</code></td>
+<tr><td><code>(flloggamma <var>x</var>)</code></td>
     <td><var>x</var> is a negative integer or 0</td>
     <td>invalidOperation</td>
     <td>NaN</td>
 </tr>
-<tr><td><code>(fllog-gamma ±inf.0)</code></td>
+<tr><td><code>(flloggamma +inf.0)</code></td>
     <td></td>
     <td></td>
-    <td><code>+inf.0</code></td>
+    <td><code>+inf.0 1.0</code></td>
+</tr>
+<tr><td><code>(flloggamma -inf.0)</code></td>
+    <td></td>
+    <td></td>
+    <td><code>+inf.0</code> and <br>either &minus;1.0 or 1.0</td>
 </tr>
 </table>
 
+<p>
+  When the function returns a NaN, the sign is unspecified, but must be
+  either &minus;1.0 or 1.0.
+</p>
+
 <div class="feature">
 <span class="category">(srfi 276 ⟨library⟩)<br>procedure</span>
-<code class="signature">(<a id="flfirst-bessel" href="#flfirst-bessel">flfirst-bessel</a> <var>fl</var> <var>n</var>)</code><br>
-<code class="signature">(<a id="flsecond-bessel" href="#flsecond-bessel">flsecond-bessel</a> <var>fl</var> <var>n</var>)</code>
+<code class="signature">(<a id="flfirst-bessel" href="#flfirst-bessel">flfirst-bessel</a> <var>n</var> <var>fl</var>)</code><br>
+<code class="signature">(<a id="flsecond-bessel" href="#flsecond-bessel">flsecond-bessel</a> <var>n</var> <var>fl</var>)</code>
 </div>
 
 <p>
@@ -2464,44 +2705,24 @@ infinity.</p>
   respectively.
 </p>
 
-<table>
-<tr><th>Operation</th><th>Side conditions</th><th>Exceptions</th><th>Return</th></tr>
-<tr><td><code>(flfirst-bessel +inf.0 <var>n</var>)</code></td>
-    <td></td>
-    <td>invalidOperation</td>
-    <td>NaN</td>
-</tr>
-<tr><td><code>(flsecond-bessel +inf.0 <var>n</var>)</code></td>
-    <td></td>
-    <td>invalidOperation</td>
-    <td>NaN</td>
-</tr>
-<tr><td><code>(flsecond-bessel <var>x</var> <var>n</var>)</code></td>
-    <td><var>x</var> is zero</td>
-    <td>divideByZero</td>
-    <td><code>-inf.0</code></td>
-</tr>
-<tr><td><code>(flsecond-bessel <var>x</var> <var>n</var>)</code></td>
-    <td><var>x</var> is negative</td>
-    <td>invalidOperation</td>
-    <td>NaN</td>
-</tr>
-</table>
-
-<h3 id="implementation-query"><a href="#implementation-query">&para;</a>
-  Implementation query</h3>
-
-
-<div class="feature" id="features">
-<span class="category">(srfi 276 ⟨library⟩)<br>procedure</span>
-<code class="signature">(<a href="#flfeatures" id="flfeatures">flfeatures</a>)</code>
+<div class="boxed">
+<p>
+  <span class="boxed-tag">Note</span>: There are no required special cases
+  for the Bessel functions. This may change in a later standard.
+</p>
 </div>
 
+<h3 id="cond-expand-features"><a href="#cond-expand-features">&para;</a>
+  Features</h3>
+
 <p>
-  Returns a list containing information about the floating-point
-  operations in this library. The following symbols have defined
-  meanings. An implementation may add other features, which should
-  be symbols.
+  The following features are added to the list of features that
+  may appear in <code>(features)</code> and may be treated as true
+  by <code>cond-expand</code>. When the features are not prefixed by
+  anything, they refer to operations in the base library,
+  <code>(srfi 276)</code>. If they are prefixed by the name of a library,
+  for example <code>binary32:</code>, then they refer to the operations in
+  that library, for example <code>(srfi 276 binary32)</code>.
 </p>
 
 <dl>
@@ -2519,11 +2740,11 @@ infinity.</p>
     appear.</dd>
 <dt><code>non-stop</code></dt>
 <dd>Arithmetic is non-stop (see above).</dd>
-<dt><code>fast-fma</code></dt>
+<dt><code>fast-fl+*</code></dt>
 <dd>The function <code>(fl+* x y z)</code> is at least as fast as or faster
     than <code>(fl+ (fl* x y) z)</code>. (Fused multiply-add must be rounded
     correctly when IEEE 754 compliance mode is on, regardless of
-    whether <code>fast-fma</code> is available.)</dd>
+    whether <code>fast-fl+*</code> is available.)</dd>
 <dt><code>⟨name⟩-correctly-rounded</code> where ⟨name⟩ is a procedure from the
     library</dt>
 <dd>The function ⟨name⟩ is always correctly rounded.
@@ -2539,13 +2760,10 @@ infinity.</p>
   this SRFI does not provide a portable way to manipulate this mode.
 </p>
 <p>
-  This should not be confused with the
-  <a href="https://standards.scheme.org/r7rs-html5/index.html#features">
-  <code>features</code></a>
-  procedure in the <span class="report-name">R<sup>7</sup>RS</span>.
-  This is a run-time procedure that reports on the run-time environment,
-  and the flags may change over the runtime of the program.
-  These flags are not accessible through <code>cond-expand</code>.
+  Some of these features may be enabled or disabled at run time. In that
+  case, the feature may show up in <code>(features)</code>, but it might
+  not be treated as true in <code>cond-expand</code> evaluated at
+  expansion time.
 </p>
 </div>
 
@@ -2557,12 +2775,15 @@ infinity.</p>
 <code class="signature">(<a href="#bytevector-flonum-ref">bytevector-flonum-ref</a>
                          <var>bv</var>
                          <var>k</var>
-                         [<var>endianness</var>])</code>
+                         <var>endianness</var>)</code><br>
+<code class="signature">(<a href="#bytevector-flonum-native-ref">bytevector-flonum-native-ref</a>
+                         <var>bv</var>
+                         <var>k</var>)</code>
 </div>
 <p>It is an error if <var>k</var> to <var>k</var> +
    <a href="#flbyte-width"><code>flbyte-width</code></a>
    are not valid indices of <var>bv</var>.
-   If <var>endianness</var> is not supplied, it is an error if
+   For <code>bytevector-flonum-native-ref</code>, it is an error if
    <var>k</var> is not a multiple of <code>flbyte-width</code>.
 </p>
 
@@ -2570,12 +2791,17 @@ infinity.</p>
    type, with the <var>endianness</var>.
 </p>
 
+<p>The procedure <code>bytevector-flonum-native-ref</code> is equivalent
+   to
+   <code>(bytevector-flonum-ref <var>bv</var> <var>k</var> (native-endianness))</code>.
+</p>
+
 <p>
    If the value is a NaN, then the NaN should not be coerced into
    another NaN.
 </p>
 
-<pre><code class="no-bg">(import (scheme base) (prefix (srfi 276 binary64) f64:))
+<pre><code>(import (scheme base) (prefix (srfi 276 binary64) f64:))
 
 (define bv (make-bytevector f64:flbyte-width))
 (bytevector-u8-set! bv 0 #b01000000)
@@ -2604,18 +2830,27 @@ infinity.</p>
                          <var>bv</var>
                          <var>k</var>
                          <var>fl</var>
-                         [<var>endianness</var>])</code>
+                         <var>endianness</var>)</code><br>
+<code class="signature">(<a href="#bytevector-flonum-native-set">bytevector-flonum-native-set!</a>
+                         <var>bv</var>
+                         <var>k</var>
+                         <var>fl</var>)</code>
 </div>
 <p>It is an error if <var>k</var> to <var>k</var> +
    <a href="#flbyte-width"><code>byte-width</code></a>
    are not valid indices of <var>bv</var>.
-   If <var>endianness</var> is not supplied, it is an error if
+   For <code>bytevector-flonum-native-set!</code>, it is an error if
    <var>k</var> is not a multiple of <code>byte-width</code>.
 </p>
 
 <p>
-  Write <var>fl</var> to <var>bv</var> at <var>k</var> with
-  <var>endianness</var>.
+  The <code>bytevector-flonum-set!</code> procedure writes <var>fl</var>
+  to <var>bv</var> at <var>k</var> with <var>endianness</var>.
+</p>
+
+<p>
+  The <code>bytevector-flonum-native-set!</code> has the same effect as
+  <code>(bytevector-flonum-set! <var>bv</var> <var>k</var> <var>fl</var> (native-endianness))</code>.
 </p>
 
 <p>
@@ -2633,7 +2868,7 @@ infinity.</p>
 <p>always evaluates to <code>#t</code>. These procedures
 should round-trip NaNs.</p>
 
-<pre><code class="no-bg"
+<pre><code
 >(import (scheme base) (prefix (srfi 276 binary32) f32))
 
 (define bv (make-bytevector f32:flbyte-width))
@@ -2652,7 +2887,7 @@ should round-trip NaNs.</p>
 <p>Read <var>string</var> as a number in that representation. This
    procedure must round-trip with <code>number-&gt;string</code>.</p>
 
-<pre><code class="no-bg"
+<pre><code
 >(import (scheme base)
         (prefix (srfi 276 binary64) f64)
         (prefix (srfi 276 binary128) f128))</code>
@@ -2671,6 +2906,118 @@ should round-trip NaNs.</p>
   <code>number-&gt;string</code> is already polymorphic.
 </p>
 </div>
+
+<h3 id="deprecated-identifiers"><a href="#deprecated-identifiers">&para;</a>
+    Deprecated identifiers</h3>
+
+<p>
+  These identifiers are specified for backwards compatibility with
+  other specificiations. They should not be used in portable code.
+</p>
+
+<div class="feature">
+<span class="category">(srfi 276 ⟨library⟩ deprecated)<br>value</span>
+<code class="signature">fl-e-2</code>
+</div>
+
+<p>Equivalent to <code>fl-e^2</code>.</p>
+
+<div class="feature">
+<span class="category">(srfi 276 ⟨library⟩ deprecated)<br>value</span>
+<code class="signature">fl-e-pi/4</code>
+</div>
+
+<p>Equivalent to <code>fl-e^pi/4</code>.</p>
+
+<div class="feature">
+<span class="category">(srfi 276 ⟨library⟩ deprecated)<br>value</span>
+<code class="signature">fl-pi-squared</code>
+</div>
+
+<p>Equivalent to <code>fl-pi-squared</code>.</p>
+
+<div class="feature">
+<span class="category">(srfi 276 ⟨library⟩ deprecated)<br>value</span>
+<code class="signature">fl-e-euler</code>
+</div>
+
+<p>Equivalent to <code>fl-e^euler</code>.</p>
+
+<div class="feature">
+<span class="category">(srfi 276 ⟨library⟩ deprecated)<br>value</span>
+<code class="signature">fl-1/log-10</code>
+</div>
+
+<p>Equivalent to <code>fl-log10-e</code>.</p>
+
+<div class="feature">
+<span class="category">(srfi 276 ⟨library⟩ deprecated)<br>value</span>
+<code class="signature">fl-1/log-2</code>
+</div>
+
+<p>Equivalent to <code>fl-log2-e</code>.</p>
+
+<div class="feature">
+<span class="category">(srfi 276 ⟨library⟩ deprecated)<br>value</span>
+<code class="signature">(flsignbit <var>fl</var>)</code>
+</div>
+
+<p>
+  Equivalent to
+</p>
+
+<pre
+>(define (flsignbit fl)
+  (if (flsign-negative? fl)
+      1
+      0))</pre>
+
+<div class="feature">
+<span class="category">(srfi 276 ⟨library⟩ deprecated)<br>value</span>
+<code class="signature">(flnormalized? <var>fl</var>)</code>
+</div>
+
+<p>
+  Equivalent to <code><a href="#flnormalp">flnormal?</a></code>.
+</p>
+
+<div class="feature">
+<span class="category">(srfi 276 ⟨library⟩ deprecated)<br>value</span>
+<code class="signature">(fldenormalized? <var>fl</var>)</code>
+</div>
+
+<p>
+  Equivalent to <code><a href="#flsubnormalp">flsubnormal?</a></code>.
+</p>
+
+<div class="feature">
+<span class="category">(srfi 276 ⟨library⟩ deprecated)<br>value</span>
+<code class="signature">(fllog1+ <var>fl</var>)</code>
+</div>
+
+<p>Equivalent to <code><a href="#fllogp1">fllog+1</a></code>.</p>
+
+<div class="feature">
+<span class="category">(srfi 276 ⟨library⟩ deprecated)<br>value</span>
+<code class="signature">(fixnum-&gt;flonum <var>fx</var>)</code><br>
+<code class="signature">(real-&gt;flonum <var>x</var>)</code>
+</div>
+
+<p>
+  Convert the specified type into a flonum. These procedures are allowed
+  to be equivalent to
+  <code><a href="#flonum">flonum</a></code>.
+</p>
+
+<div class="boxed">
+<p><span class="boxed-tag">Note</span>:
+  Equivalents to <span class="report-name">R<sup>6</sup>RS</span>’s
+  <code>fldiv-and-mod</code> (and others) are not supplied. These
+  operations are not rounded correctly on most implementations, and
+  there are many different types of results (flonum approximation,
+  <code><a href="#flremquo">flremquo</a></code> style, a bignum) one
+  may wish to obtain from a division operation.
+</p></div>
 
 <h2 id="rounding-mode-library"><a href="#rounding-mode-library">&para;</a>
     Rounding mode libraries</h2>
@@ -3017,12 +3364,11 @@ should round-trip NaNs.</p>
 <p>
   <em>This section is non-normative.</em>
 </p>
-<pre><code class="no-bg"
+<pre><code
 >(import (scheme base)
         (prefix (srfi 276 binary32) f32)
         (srfi 151)
-        (rnrs bytevectors) ; for bytevector serialization operations
-)
+        (srfi 281))
 
 (unless (member 'ieee-754-2019 (f32:flfeatures))
   (error "requires IEEE 754 arithmetic"))
@@ -3104,38 +3450,45 @@ should round-trip NaNs.</p>
 <h2 id="implementation"><a href="#implementation">&para;</a> Implementation</h2>
 
 <p>
-  An implementation should use the floating-point operations available in hardware
-  as much as possible.
-  Most implementations only have one floating-point type (binary64), and those
-  implementations can copy most of their
-  <a href="https://srfi.schemers.org/srfi-144/">SRFI 144</a>
-  implementation to <code>(srfi 276 binary64)</code> with minor renamings.
+  Two implementations are provided in the SRFI repository: one is an
+  implementation that builds on an implementation’s SRFI 144, and another
+  is a Gambit implementation. The Gambit implementation can be compiled
+  using the Makefile, and the resulting library is in the <code>gambit-lib</code>
+  directory. These only implement the required parts of
+  this SRFI: an MIT-Scheme implementation of the exception, environment,
+  and rounding-mode interface will be provided later.
 </p>
 
 <p>
-  The simplest way to implement the inspection portion of this SRFI is an FFI to C’s
-  <a href="https://en.cppreference.com/c/numeric/fenv"><code>fenv.h</code></a>.
-  Checking the FTZ/DAZ mode (for example, on Intel CPUs) requires intrinsics to
-  check the MXCSR register.
+  An implementation should use the floating-point operations available
+  in hardware as much as possible.  Most implementations only have one
+  floating-point type (binary64), and can make <code>(srfi 276)</code>
+  and <code>(srfi 276 binary64)</code> the same thing.
 </p>
 
 <p>
-  Although it is possible to implement
-  <a href="#bytevector-flonum-ref"><code>bytevector-flonum-ref</code></a>
-  and
+  The simplest way to implement the inspection
+  portion of this SRFI is an FFI to C’s <a
+  href="https://en.cppreference.com/c/numeric/fenv"><code>fenv.h</code></a>.
+  Checking the FTZ/DAZ mode (for example, on Intel CPUs) requires
+  intrinsics to check the MXCSR register.
+</p>
+
+<p>
+  The portable implementation of
+   <a
+  href="#bytevector-flonum-ref"><code>bytevector-flonum-ref</code></a> and
   <a href="#bytevector-flonum-set"><code>bytevector-flonum-set!</code></a>
-  in terms of <code><a href="#flnormalized-fraction-exponent">flnormalized-fraction-exponent</a></code> and
-  <code><a href="#make-flonum">make-flonum</a></code>, it is much easier to manipulate the byte
-  representation of the flonum directly.
+  is written in terms of <code><a
+  href="#flnormalized-fraction-exponent">flnormalized-fraction-exponent</a></code>
+  and <code><a href="#make-flonum">make-flonum</a></code>. It is much
+  easier to manipulate the byte representation of the flonum directly,
+  and it is also much faster. This is the approach taken in the Gambit
+  implementation.
 </p>
 
 <p>
-  A sample implementation will be provided that wraps MIT Scheme’s
-  floating-point environment API.
-</p>
-
-<p>
-  Implementations that implement SRFI 276 are encouraged to also export
+  Implementations that implement SRFI 276 should also export
   SRFI 144 as a compatability library.
 </p>
 
