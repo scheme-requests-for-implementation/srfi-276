@@ -12,6 +12,8 @@
           fl-greatest fl-least fl-least-normal fl-epsilon fl-byte-width)
   (begin
     ;; This is a hack to get around a bug in Gambit
+    (define-macro (maybe-raise-flexceptions! . obj)
+      #f)
     (define-macro (let-values bindings . rest)
       (define (remap-formals formals)
         (cond
@@ -248,9 +250,10 @@ ___return(exp);")))
      (define flround-away
        (c-lambda (double) double "round")))
    ;;; Integer division
-   (export flquotient flremainder
+   (export flquotient
+           (rename fltruncate-remainder flremainder)
            (rename flquotient fltruncate-quotient)
-           (rename flremainder fltruncate-remainder)
+           fltruncate-remainder
            flremquo
            flround-quotient
            flround-remainder)
