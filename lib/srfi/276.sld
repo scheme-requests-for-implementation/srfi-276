@@ -29,6 +29,13 @@
                      (fldenormalized? flsubnormal?)))))
 
   (cond-expand
+    (mit (import (only (mit legacy runtime)
+                       integer-length
+                       bitwise-and
+                       arithmetic-shift)))
+    (else (import (srfi 151))))
+
+  (cond-expand
     ((library (srfi 208))
      (import (srfi 208)))
     (else))

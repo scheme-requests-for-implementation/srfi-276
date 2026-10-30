@@ -8,6 +8,6 @@
     ((flinfinite? x)
      (maybe-raise-flexceptions! 'invalid-operation)
      +nan.0)
-    (else (flremainder x y))))
+    (else (srfi-144:flremainder x y))))
 
 (define flremainder fltruncate-remainder)

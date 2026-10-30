@@ -62,3 +62,8 @@
   (test-group "flcompound nan"
     (test-assert "(flcompound +nan.0 +0.0)" (prop +0.0))
     (test-assert "(flcompound +nan.0 -0.0)" (prop -0.0))))
+
+(define (test-flcompound-small)
+  (test-group "flcompound on small numbers"
+    ;; In Binary64, 1 + 1e-16 ≈ 1
+    (test-assert (fl>? (flcompound 1e-16 100) 1.0))))
