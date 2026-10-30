@@ -1,11 +1,11 @@
 ; SPDX-FileCopyrightText: 2026 Peter McGoron
 ; SPDX-License-Identifier: MIT
 (define (test-flexponent)
-  (let-syntax ((test-flexponent
-                (syntax-rules ()
-                  ((_ input expected)
-                   (test-values (flexponent (flonum input))
-                                `(,expected))))))
+  (define-syntax test-flexponent
+    (syntax-rules ()
+      ((_ input expected)
+       (test-values (flexponent (flonum input))
+                    `(,expected)))))
     (test-flexponent +inf.0 +inf.0)
     (test-flexponent -inf.0 +inf.0)
     (test-assert "(flexponent +0.0)"
@@ -20,4 +20,4 @@
     (test-flexponent 2.0 1.0)
     (test-flexponent -2.0 1.0)
     (test-flexponent 3.0 1.0)
-    (test-flexponent 4.0 2.0)))
+    (test-flexponent 4.0 2.0))
