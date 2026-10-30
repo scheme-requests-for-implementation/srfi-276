@@ -217,28 +217,6 @@ between this SRFI and other standards</a></li>
   <li><a href="#copyright">Copyright</a></li>
 </ol>
 
-<h2 id="issues"><a href="#issues"></a>Issues</h2>
-
-<ul>
-  <li>
-    Should this include conversion to/from f32 and f64 vectors,
-    and should it specify that f32vectors are vectors of binary32
-    numbers, etc?
-  </li>
-  <li>
-    Should conversion procedures raise an exception if a NaN value
-    is unacceptable, or should implementations be allowed to coerce it?
-  </li>
-  <li>
-    IEEE 754-2019 mandates that some procedures return non-NaN values even
-    when given NaN values: for example, <code>(flexpt 1.0 +nan.0)</code>
-    ⇒ 1.0 if the NaN is a quiet NaN. The quiet NaN is the one usually
-    returned from floating point operations. This conflicts with the
-    usual view of Scheme inexact numbers, where <code>1.0</code> is an
-    approximation of 1.0. How do we handle this?
-  </li>
-</ul>
-
 <h2 id="rationale"><a href="#rationale"></a>Rationale</h2>
 <p><em>This section is non-normative.</em></p>
 
@@ -247,12 +225,15 @@ between this SRFI and other standards</a></li>
   of inexact numbers.
   From the <span class="report-name">R<sup>4</sup>RS</span> onward,
   implementations could use <code>s</code>, <code>f</code>, <code>d</code>,
-  and <code>l</code> to denote inexact constants of different precisions.
-  The <span class="report-name">R<sup>6</sup>RS</span> and
-  <a href="https://srfi.schemers.org/srfi-144/">SRFI 144</a> included
-  “flonum” operations. However, these specifications do not specify what
-  the format of the flonum is. The flonum might not be an IEEE format
-  number and operations may differ from implementation to implementation.
+  and <code>l</code> to denote inexact constants of different precisions,
+  but the precisions of such numbers was not specified.
+  The <span class="report-name">R<sup>6</sup>RS</span> added a “flonum”
+  operations library, but did not specify the format or precision of
+  a flonum.
+  <a href="https://srfi.schemers.org/srfi-144/">SRFI 144</a> is the
+  current <span class="report-name">R<sup>7</sup>RS</span>-Large
+  flonum library, which defers to C99 in terms of its flonums, except
+  that flonums must be represented with radix 2.
 </p>
 
 <p>
@@ -265,9 +246,9 @@ between this SRFI and other standards</a></li>
 
 <p>
   This SRFI also updates SRFI 144 to include the recommended procedures
-  described in IEEE 754-2019, which are further included in C23. An
+  described in IEEE 754-2019 that are also included in C23. An
   implementation of this library can implement the new procedures as an
-  FFI to C23: the definitions between this SRFI and C23 are harmonized.
+  FFI to C23.
 </p>
 
 <h3 id="speed-portability-and-ease-of-use"><a href="#speed-portability-and-ease-of-use"></a>Speed and Portability vs. Ease of Use</h3>
@@ -315,7 +296,9 @@ between this SRFI and other standards</a></li>
   This SRFI defines procedures that mirror functions in C23’s math
   library, which are in turn based off of IEEE 754-2019’s recommended
   functions. These functions are expected to be widely available with
-  stable implementations.
+  stable and efficient implementations. Some functions were dropped
+  because they were specific to decimal floats, or were judged redundant
+  (<code>powr</code>).
 </p>
 
 <p>
@@ -2062,6 +2045,74 @@ invalidOperation exception.</li>
   which provides this rule.
 </p>
 </div>
+
+<div class="feature">
+<span class="category">(srfi 276 ⟨library⟩)<br>procedure</span>
+<code class="signature">(<a href="#flpown" id="flpown">flpown</a> <var>fl</var> <var>n</var>)</code><br>
+</div>
+
+<p>
+  Return <var>fl</var> raised to the power of <var>n</var>.
+</p>
+
+<table>
+<tr><th>Operation</th><th>Side conditions</th><th>Exceptions</th><th>Return</th></tr>
+<tr><td><code>(flpown <var>x</var> 0)</code></td>
+    <td></td>
+    <td></td>
+    <td>1.0</td>
+</tr>
+<tr><td><code>(flpown ±0.0 <var>n</var>)</code></td>
+    <td><var>n</var> &lt; 0, <var>n</var> odd</td>
+    <td>divideByZero</td>
+    <td><code>±inf.0</code></td>
+</tr>
+<tr><td><code>(flpown ±0.0 <var>n</var>)</code></td>
+    <td><var>n</var> &lt; 0, <var>n</var> even</td>
+    <td>divideByZero</td>
+    <td><code>+inf.0</code></td>
+</tr>
+<tr><td><code>(flpown ±0.0 <var>n</var>)</code></td>
+    <td><var>n</var> &gt; 0, <var>n</var> even</td>
+    <td></td>
+    <td><code>+0.0</code></td>
+</tr>
+<tr><td><code>(flpown ±0.0 <var>n</var>)</code></td>
+    <td><var>n</var> &gt; 0, <var>n</var> odd</td>
+    <td></td>
+    <td><code>±0.0</code></td>
+</tr>
+<tr><td><code>(flpown +inf.0 <var>n</var>)</code></td>
+    <td><var>n</var> &gt; 0</td>
+    <td></td>
+    <td><code>+inf.0</code></td>
+</tr>
+<tr><td><code>(flpown -inf.0 <var>n</var>)</code></td>
+    <td><var>n</var> &gt; 0, <var>n</var> odd</td>
+    <td></td>
+    <td><code>-inf.0</code></td>
+</tr>
+<tr><td><code>(flpown -inf.0 <var>n</var>)</code></td>
+    <td><var>n</var> &gt; 0, <var>n</var> even</td>
+    <td></td>
+    <td><code>+inf.0</code></td>
+</tr>
+<tr><td><code>(flpown +inf.0 <var>n</var>)</code></td>
+    <td><var>n</var> &lt; 0</td>
+    <td></td>
+    <td><code>+0.0</code></td>
+</tr>
+<tr><td><code>(flpown -inf.0 <var>n</var>)</code></td>
+    <td><var>n</var> &lt; 0, <var>n</var> odd</td>
+    <td></td>
+    <td><code>-0.0</code></td>
+</tr>
+<tr><td><code>(flpown -inf.0 <var>n</var>)</code></td>
+    <td><var>n</var> &lt; 0, <var>n</var> even</td>
+    <td></td>
+    <td><code>+0.0</code></td>
+</tr>
+</table>
 
 <h3 id="logarithms"><a href="#logarithms"></a>Logarithms</h3>
 

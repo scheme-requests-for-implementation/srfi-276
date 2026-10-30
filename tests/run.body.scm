@@ -204,6 +204,19 @@
   (gauche (set! skipping? #f))
   (else))
 
+(include "flpown.scm")
+(test-flpown-simple)
+(test-flpown-to-0)
+(test-flpown-0-to-odd-negative-n)
+(test-flpown-0-to-even-negative-n)
+(test-flpown-0-to-even-positive-n)
+(test-flpown-0-to-odd-positive-n)
+(test-flpown-infinity-n)
+(test-flpown-negative-infinity-odd-positive-n)
+(test-flpown-negative-infinity-even-positive-n)
+(test-flpown-negative-infinity-to-odd-negative-n)
+(test-flpown-negative-infinity-to-even-negative-n)
+
 (include "fllog.scm")
 
 (test-fllog)
@@ -224,6 +237,7 @@
 (test-flcompound-infinite-to-positive)
 (test-flcompound-infinite-to-negative)
 (test-flcompound-nan)
+(test-flcompound-small)
 
 (include "flhypot.scm")
 (test-flhypot)
