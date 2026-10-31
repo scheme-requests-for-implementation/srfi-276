@@ -304,9 +304,12 @@ ___return(q);"))
        (lambda (y)
          (fl/ (fllog y) (fllog x)))))
    ;;; Powers and roots
-   (export flcbrt flcompound flhypot flrsqrt flsqrt)
+   (export flcbrt flcompound flhypot flrsqrt flsqrt
+           flroot flpown)
    (include "../../lib/srfi/276.compound.scm")
    (include "../../lib/srfi/276.rsqrt.scm")
+   (include "../../lib/srfi/276.rootn.scm")
+   (include "../../lib/srfi/276.flpown.scm")
    (begin
      (define flcbrt
        (c-lambda (double) double "cbrt")))

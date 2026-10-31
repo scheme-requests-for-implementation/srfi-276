@@ -313,6 +313,80 @@ between this SRFI and other standards</a></li>
   implemented in pure Scheme.
 </p>
 
+<h3 id="rationale2"><a href="#rationale2"></a> Rationale for some of
+the added procedures</h3>
+
+<ol>
+  <li><a href="#flneq"><code>fl!=?</code></a> preserves the fact NaNs are
+      unordered. Hence, <code>(fl!=? <var>x</var> +nan.0)</code> is
+      always false.</li>
+  <li>The <a href="#flonum-total-comp">total ordering predicates</a>
+      impose a useful ordering when one wants to store floating point
+      numbers in an ordered set, without worrying about issues such
+      as signed zero or NaNs.</li>
+  <li>The <a href="#flmax-abs-filter-nans">maximum
+      and minimum procedures</a> provide both NaN-on-NaN and ignore-NaN
+      semantics, because both of these are common behavior.
+  </li>
+  <li>The <a href="#flmax-abs-filter-nans">absolute-value maximum
+      and minimum procedures</a> provide a disambiguation step when
+      two values have the same absolute value (the value with the
+      positive sign prevails) to keep the procedure robust to reordering
+      of the arguments.</li>
+  <li>The <a href="#flcompound"><code>flcompound</code></a> procedure
+      can calculate the repeated multiplication of numbers that cannot be
+      represented in the floating point format. The binomial expansion
+      is
+      <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+      <msup>
+       <mrow>
+        <mo>(</mo>
+        <mn>1</mn>
+        <mo>+</mo>
+        <mi>x</mi>
+        <mo>)</mo>
+       </mrow>
+       <mi>n</mi>
+      </msup>
+      <mo>=</mo>
+      <mn>1</mn>
+      <mo>+</mo>
+      <mi>n</mi>
+      <mo>&#x2062;</mo>
+      <mi>x</mi>
+      <mo>+</mo>
+      <mi>O</mi>
+      <mrow>
+       <mo>(</mo>
+       <msup><mi>x</mi>
+             <mn>2</mn>
+       </msup>
+       <mo>)</mo>
+      </mrow>
+      </math>
+      <p>For example, 1.0 + 1e&minus;16 is not representable as a
+         Binary64 number, but 1.0 + (100)1e&minus;16 is.
+         Hence, <code>(flexpt (fl+ 1.0 1e-16) 100.0)</code> would not
+         give the correct answer, but
+         <code>(flcompound 1e-16 100)</code> would.
+  </li>
+  <li><a href="#flroot"><code>flroot</code></a> can implement finding
+      the <var>n</var><sup>th</sup> root using a specialized algorithm
+      that would be more difficult for
+      <a href="#flexpt"><code>flexpt</code></a> to use, because the
+      reciprocal of an integer is harder to detect than an integer.
+  </li>
+  <li><a href="#flsinpi"><code>flsinpi</code></a> is more useful
+      when numbers are represented in a fraction of revolutions,
+      such as degrees. The pi procedures can reduce integers without
+      extra error, unlike trying to multiply or divide by π, a
+      trancendental constant.
+  </li>
+  <li><a href="#bytevector-flonum-ref"><code>bytevector-flonum-ref</code></a>
+      allows for serialization/deserialization of the flonum without
+      fixing a specific format.</li>
+</ol>
+
 <h2 id="terminology"><a href="#terminology"></a>Terminology</h2>
 
 <p>
@@ -2046,74 +2120,6 @@ invalidOperation exception.</li>
 </p>
 </div>
 
-<div class="feature">
-<span class="category">(srfi 276 ⟨library⟩)<br>procedure</span>
-<code class="signature">(<a href="#flpown" id="flpown">flpown</a> <var>fl</var> <var>n</var>)</code><br>
-</div>
-
-<p>
-  Return <var>fl</var> raised to the power of <var>n</var>.
-</p>
-
-<table>
-<tr><th>Operation</th><th>Side conditions</th><th>Exceptions</th><th>Return</th></tr>
-<tr><td><code>(flpown <var>x</var> 0)</code></td>
-    <td></td>
-    <td></td>
-    <td>1.0</td>
-</tr>
-<tr><td><code>(flpown ±0.0 <var>n</var>)</code></td>
-    <td><var>n</var> &lt; 0, <var>n</var> odd</td>
-    <td>divideByZero</td>
-    <td><code>±inf.0</code></td>
-</tr>
-<tr><td><code>(flpown ±0.0 <var>n</var>)</code></td>
-    <td><var>n</var> &lt; 0, <var>n</var> even</td>
-    <td>divideByZero</td>
-    <td><code>+inf.0</code></td>
-</tr>
-<tr><td><code>(flpown ±0.0 <var>n</var>)</code></td>
-    <td><var>n</var> &gt; 0, <var>n</var> even</td>
-    <td></td>
-    <td><code>+0.0</code></td>
-</tr>
-<tr><td><code>(flpown ±0.0 <var>n</var>)</code></td>
-    <td><var>n</var> &gt; 0, <var>n</var> odd</td>
-    <td></td>
-    <td><code>±0.0</code></td>
-</tr>
-<tr><td><code>(flpown +inf.0 <var>n</var>)</code></td>
-    <td><var>n</var> &gt; 0</td>
-    <td></td>
-    <td><code>+inf.0</code></td>
-</tr>
-<tr><td><code>(flpown -inf.0 <var>n</var>)</code></td>
-    <td><var>n</var> &gt; 0, <var>n</var> odd</td>
-    <td></td>
-    <td><code>-inf.0</code></td>
-</tr>
-<tr><td><code>(flpown -inf.0 <var>n</var>)</code></td>
-    <td><var>n</var> &gt; 0, <var>n</var> even</td>
-    <td></td>
-    <td><code>+inf.0</code></td>
-</tr>
-<tr><td><code>(flpown +inf.0 <var>n</var>)</code></td>
-    <td><var>n</var> &lt; 0</td>
-    <td></td>
-    <td><code>+0.0</code></td>
-</tr>
-<tr><td><code>(flpown -inf.0 <var>n</var>)</code></td>
-    <td><var>n</var> &lt; 0, <var>n</var> odd</td>
-    <td></td>
-    <td><code>-0.0</code></td>
-</tr>
-<tr><td><code>(flpown -inf.0 <var>n</var>)</code></td>
-    <td><var>n</var> &lt; 0, <var>n</var> even</td>
-    <td></td>
-    <td><code>+0.0</code></td>
-</tr>
-</table>
-
 <h3 id="logarithms"><a href="#logarithms"></a>Logarithms</h3>
 
 <div class="feature">
@@ -2310,6 +2316,131 @@ invalidOperation exception.</li>
 <tr><td><code>(flsqrt ±0.0)</code></td><td></td><td></td><td><code>±0.0</code></td></tr>
 <tr><td><code>(flsqrt +inf.0)</code></td><td></td><td></td><td><code>+inf.0</code></td></tr>
 <tr><td><code>(flsqrt x)</code></td><td><var>x</var> &lt; 0</td><td></td><td>NaN</td>
+</table>
+
+<div class="feature">
+<span class="category">(srfi 276 ⟨library⟩)<br>procedure</span>
+<code class="signature">(<a href="#flpown" id="flpown">flpown</a> <var>fl</var> <var>n</var>)</code><br>
+</div>
+
+<p>
+  Return <var>fl</var> raised to the power of <var>n</var>.
+</p>
+
+<table>
+<tr><th>Operation</th><th>Side conditions</th><th>Exceptions</th><th>Return</th></tr>
+<tr><td><code>(flpown <var>x</var> 0)</code></td>
+    <td></td>
+    <td></td>
+    <td>1.0</td>
+</tr>
+<tr><td><code>(flpown ±0.0 <var>n</var>)</code></td>
+    <td><var>n</var> &lt; 0, <var>n</var> odd</td>
+    <td>divideByZero</td>
+    <td><code>±inf.0</code></td>
+</tr>
+<tr><td><code>(flpown ±0.0 <var>n</var>)</code></td>
+    <td><var>n</var> &lt; 0, <var>n</var> even</td>
+    <td>divideByZero</td>
+    <td><code>+inf.0</code></td>
+</tr>
+<tr><td><code>(flpown ±0.0 <var>n</var>)</code></td>
+    <td><var>n</var> &gt; 0, <var>n</var> even</td>
+    <td></td>
+    <td><code>+0.0</code></td>
+</tr>
+<tr><td><code>(flpown ±0.0 <var>n</var>)</code></td>
+    <td><var>n</var> &gt; 0, <var>n</var> odd</td>
+    <td></td>
+    <td><code>±0.0</code></td>
+</tr>
+<tr><td><code>(flpown +inf.0 <var>n</var>)</code></td>
+    <td><var>n</var> &gt; 0</td>
+    <td></td>
+    <td><code>+inf.0</code></td>
+</tr>
+<tr><td><code>(flpown -inf.0 <var>n</var>)</code></td>
+    <td><var>n</var> &gt; 0, <var>n</var> odd</td>
+    <td></td>
+    <td><code>-inf.0</code></td>
+</tr>
+<tr><td><code>(flpown -inf.0 <var>n</var>)</code></td>
+    <td><var>n</var> &gt; 0, <var>n</var> even</td>
+    <td></td>
+    <td><code>+inf.0</code></td>
+</tr>
+<tr><td><code>(flpown +inf.0 <var>n</var>)</code></td>
+    <td><var>n</var> &lt; 0</td>
+    <td></td>
+    <td><code>+0.0</code></td>
+</tr>
+<tr><td><code>(flpown -inf.0 <var>n</var>)</code></td>
+    <td><var>n</var> &lt; 0, <var>n</var> odd</td>
+    <td></td>
+    <td><code>-0.0</code></td>
+</tr>
+<tr><td><code>(flpown -inf.0 <var>n</var>)</code></td>
+    <td><var>n</var> &lt; 0, <var>n</var> even</td>
+    <td></td>
+    <td><code>+0.0</code></td>
+</tr>
+</table>
+
+<div class="feature">
+<span class="category">(srfi 276 ⟨library⟩)<br>procedure</span>
+<code class="signature">(<a href="#flroot" id="flroot">flroot</a> <var>fl</var> <var>n</var>)</code><br>
+</div>
+
+<p>
+  Returns the <var>n</var>th root of <var>fl</var>.
+</p>
+
+<table>
+<tr><th>Operation</th><th>Side conditions</th><th>Exceptions</th><th>Return</th></tr>
+<tr><td><code>(flroot ±0.0 <var>n</var>)</code></td>
+    <td><var>n</var> odd, <var>n</var> &lt; 0</td>
+    <td>divideByZero</td>
+    <td><code>±inf.0</code></td></tr>
+<tr><td><code>(flroot ±0.0 <var>n</var>)</code></td>
+    <td><var>n</var> even, <var>n</var> &lt; 0</td>
+    <td>divideByZero</td>
+    <td><code>+inf.0</code></td></tr>
+<tr><td><code>(flroot ±0.0 <var>n</var>)</code></td>
+    <td><var>n</var> even, <var>n</var> &gt; 0</td>
+    <td></td>
+    <td><code>+0.0</code></td></tr>
+<tr><td><code>(flroot ±0.0 <var>n</var>)</code></td>
+    <td><var>n</var> odd, <var>n</var> &gt; 0</td>
+    <td></td>
+    <td><code>±0.0</code></td></tr>
+<tr><td><code>(flroot +inf.0 <var>n</var>)</code></td>
+    <td><var>n</var> &gt; 0</td>
+    <td></td>
+    <td><code>+inf.0</code></td></tr>
+<tr><td><code>(flroot -inf.0 <var>n</var>)</code></td>
+    <td><var>n</var> odd, <var>n</var> &gt; 0</td>
+    <td></td>
+    <td><code>-inf.0</code></td></tr>
+<tr><td><code>(flroot -inf.0 <var>n</var>)</code></td>
+    <td><var>n</var> even, <var>n</var> &gt; 0</td>
+    <td>invalidOperation</td>
+    <td>NaN</td></tr>
+<tr><td><code>(flroot +inf.0 <var>n</var>)</code></td>
+    <td><var>n</var> &lt; 0</td>
+    <td></td>
+    <td><code>-0.0</code></td></tr>
+<tr><td><code>(flroot -inf.0 <var>n</var>)</code></td>
+    <td><var>n</var> even, <var>n</var> &lt; 0</td>
+    <td>invalidOperation</td>
+    <td>NaN</td></tr>
+<tr><td><code>(flroot <var>x</var> 0)</code></td>
+    <td></td>
+    <td>invalidOperation</td>
+    <td>NaN</td></tr>
+<tr><td><code>(flroot <var>x</var> <var>n</var>)</code></td>
+    <td><var>x</var> &lt; 0, <var>n</var> even</td>
+    <td>invalidOperation</td>
+    <td>NaN</td></tr>
 </table>
 
 <h3 id="trigonometric"><a href="#trigonometric"></a>Trigonometric functions</h3>

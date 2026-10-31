@@ -106,7 +106,8 @@
            fllog2+1
            fllog10+1
            make-fllog-base)
-   (export flcbrt flcompound flhypot flrsqrt flsqrt)
+   (export flcbrt flcompound flhypot flrsqrt flsqrt
+           flpown flroot)
    (export flsin flcos fltan
            flsinpi flcospi fltanpi)
    (export flasin flacos flatan
@@ -211,6 +212,8 @@
   (include "276.round-quotient-and-remainder.scm")
   (include "276.fltruncate-remainder.scm")
   (include "276.exp.scm")
+  (include "276.flpown.scm")
+  (include "276.rootn.scm")
   (include "276.fllog.scm")
   (include "276.cbrt.scm")
   (include "276.compound.scm")

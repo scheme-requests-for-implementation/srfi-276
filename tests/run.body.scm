@@ -217,6 +217,21 @@
 (test-flpown-negative-infinity-to-odd-negative-n)
 (test-flpown-negative-infinity-to-even-negative-n)
 
+(include "flroot.scm")
+(test-flroot-simple)
+(test-flroot-0-to-odd-negative-n)
+(test-flroot-0-to-even-negative-n)
+(test-flroot-0-to-even-positive-n)
+(test-flroot-0-to-odd-positive-n)
+(test-flroot-infinity-n)
+(test-flroot-negative-infinity-odd-positive-n)
+(test-flroot-negative-infinity-even-positive-n)
+(test-flroot-positive-infinity-to-negative-n)
+(test-flroot-negative-infinity-to-odd-negative-n)
+(test-flroot-negative-infinity-to-even-negative-n)
+(test-flroot-to-zero)
+(test-flroot-negative-x-to-negative-n)
+
 (include "fllog.scm")
 
 (test-fllog)
