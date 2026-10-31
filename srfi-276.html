@@ -3290,6 +3290,31 @@ should round-trip NaNs.</p>
    and <code>#f</code> otherwise.
 </p>
 
+<div class="feature">
+<span class="category">(srfi 276 rounding-mode-macro)<br>syntax</span>
+<code class="signature">(<a id="rounding-mode" href="#rounding-mode">rounding-mode</a> ⟨<var>rounding-mode symbol</var>⟩)</code>
+</div>
+
+<p>
+If ⟨<var>rounding-mode symbol</var>⟩ is a symbol supported by the
+implementation as an rounding-mode, then the expression <code>(rounding-mode
+⟨<var>rounding-mode symbol</var>⟩)</code> evaluates to the symbol named
+⟨<var>rounding-mode symbol</var>⟩. If ⟨<var>rounding-mode symbol</var>⟩
+is a symbol not supported by the implementation, an error is raised when
+this form is expanded.
+</p>
+
+<div class="boxed">
+<p>
+  <span class="boxed-tag">Note</span>:
+Only the name of ⟨<var>rounding-mode symbol</var>⟩ is significant.
+</p>
+
+<p>
+  This form is not implementable in syntax-rules.
+</p>
+</div>
+
 <div class="feature" id="with-rounding-mode">
 <span class="category">(srfi 276 with-rounding-mode)<br>syntax</span>
 <code class="signature">(<a href="#with-rounding-mode">with-rounding-mode</a> <var>rounding-mode</var> <var>body</var> …)</code>
@@ -3385,6 +3410,31 @@ should round-trip NaNs.</p>
 </dl>
 
 <p>An implementation may add more exceptions, which should be symbols.</p>
+
+<div class="feature">
+<span class="category">(srfi 276 flexception-macro)<br>syntax</span>
+<code class="signature">(<a id="flexception" href="#flexception">flexception</a> ⟨<var>flexception symbol</var>⟩)</code>
+</div>
+
+<p>
+If ⟨<var>flexception symbol</var>⟩ is a symbol supported by the
+implementation as a floating point exception, then the expression <code>(flexception
+⟨<var>flexception symbol</var>⟩)</code> evaluates to the symbol named
+⟨<var>flexception symbol</var>⟩. If ⟨<var>flexception symbol</var>⟩
+is a symbol not supported by the implementation, an error is raised when
+this form is expanded.
+</p>
+
+<div class="boxed">
+<p>
+  <span class="boxed-tag">Note</span>:
+Only the name of ⟨<var>flexception symbol</var>⟩ is significant.
+</p>
+
+<p>
+  This form is not implementable in syntax-rules.
+</p>
+</div>
 
 <div class="feature" id="current-flexceptions">
 <span class="category">(srfi 276 exception)<br>procedure</span>

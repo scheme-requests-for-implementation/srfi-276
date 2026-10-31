@@ -375,9 +375,21 @@
   (else))
 
 (cond-expand
+  ((library (srfi 276 flexception-macro))
+   (include "flexception-macro.scm")
+   (test-flexception-macro))
+  (else))
+
+(cond-expand
   ((library (srfi 276 rounding-mode))
    (include "rounding-mode.scm")
    (test-rounding-mode))
+  (else))
+
+(cond-expand
+  ((library (srfi 276 rounding-mode-macro))
+   (include "rounding-mode-macro.scm")
+   (test-rounding-mode-macro))
   (else))
 
 (cond-expand
