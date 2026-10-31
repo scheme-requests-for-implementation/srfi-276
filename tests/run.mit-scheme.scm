@@ -1,13 +1,17 @@
 ; SPDX-FileCopyrightText: 2026 Peter McGoron
-; SPDX-License-Identifier: MIT
+; SPDX-License-Identifier: GPL-2.0-or-later
 ;; Enable exception handling
 (flo:clear-exceptions! (flo:supported-exceptions))
 (load "../mit-scheme-lib/srfi/276/exception.sld")
+(load "../mit-scheme-lib/srfi/276/flexception-macro.sld")
 (load "../mit-scheme-lib/srfi/276/rounding-mode.sld")
+(load "../mit-scheme-lib/srfi/276/rounding-mode-macro.sld")
 (load "../mit-scheme-lib/srfi/276/with-rounding-mode.sld")
 (load "../mit-scheme-lib/srfi/276/set-rounding-mode.sld")
 ,(import (srfi 276 exception))
+,(import (srfi 276 flexception-macro))
 ,(import (srfi 276 rounding-mode))
+,(import (srfi 276 rounding-mode-macro))
 ,(import (srfi 276 with-rounding-mode))
 ,(import (srfi 276 set-rounding-mode))
 (load "../lib/srfi/276.sld")

@@ -1,3 +1,5 @@
+; SPDX-FileCopyrightText: 2026 Peter McGoron
+; SPDX-License-Identifier: MIT
 (define (flroot fl n)
   (unless (integer? n)
     (error "Not an integer" n))

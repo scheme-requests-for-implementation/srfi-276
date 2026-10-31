@@ -1,3 +1,5 @@
+; SPDX-FileCopyrightText: 2026 Peter McGoron
+; SPDX-License-Identifier: MIT
 (define (test-flroot-simple)
   (test-group "flroot"
     (test-equal 2.0 (flroot 65536.0 16))
