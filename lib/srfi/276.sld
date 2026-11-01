@@ -1,3 +1,6 @@
+; SPDX-FileCopyrightText: 2026 Peter McGoron
+; SPDX-License-Identifier: MIT
+
 (define-library (srfi 276)
   (import (scheme base) (scheme inexact))
   (import (rename (except (srfi 144)
@@ -8,14 +11,35 @@
                   (fl- srfi-144:fl-)
                   (fl/ srfi-144:fl/)
                   (fl* srfi-144:fl*)
-                  (fllog1+ fllog+1)
+                  (flremainder srfi-144:flremainder)
                   (flonum srfi-144:flonum)
                   (flsign-bit srfi-144:flsign-bit)
-                  (flinteger-exponent srfi-144:flinteger-exponent)
-                  (flquotient fltruncate-quotient)
-                  (flremainder fltruncate-remainder)
-                  (flnormalized? flnormal?)
-                  (fldenormalized? flsubnormal?)))
+                  (flinteger-exponent srfi-144:flinteger-exponent)))
+  (cond-expand
+    (mit (begin
+           (define fllog+1 fllog1+)
+           (define fltruncate-quotient flquotient)
+           (define flnormal? flnormalized?)
+           (define flsubnormal? fldenormalized?)))
+    (else
+     (import (rename (srfi 144)
+                     (fllog1+ fllog+1)
+                     (flquotient fltruncate-quotient)
+                     (flnormalized? flnormal?)
+                     (fldenormalized? flsubnormal?)))))
+
+  (cond-expand
+    (mit (import (only (mit legacy runtime)
+                       integer-length
+                       bitwise-and
+                       arithmetic-shift)))
+    (else (import (srfi 151))))
+
+  (cond-expand
+    ((library (srfi 208))
+     (import (srfi 208)))
+    (else))
+
   (export fl-radix fl-precision fl-maximum-exponent
           fl-minimum-exponent fl-minimum-normalized-exponent
           fl-greatest fl-least fl-least-normal fl-epsilon fl-byte-width)
@@ -82,7 +106,8 @@
            fllog2+1
            fllog10+1
            make-fllog-base)
-   (export flcbrt flcompound flhypot flrsqrt flsqrt)
+   (export flcbrt flcompound flhypot flrsqrt flsqrt
+           flpown flroot)
    (export flsin flcos fltan
            flsinpi flcospi fltanpi)
    (export flasin flacos flatan
@@ -94,8 +119,11 @@
    (export bytevector-flonum-ref
            bytevector-flonum-native-ref
            bytevector-flonum-set!
-           bytevector-flonum-native-set!
-           (rename string->number string->flonum))
+           bytevector-flonum-native-set!)
+  (cond-expand
+    (mit (export string->flonum)
+         (begin (define string->flonum string->number)))
+    (else (export (rename string->number string->flonum))))
   (import (srfi 143))
   (begin
     (define large-positive-integer fx-greatest)
@@ -109,17 +137,17 @@
          (if (null? lst)
              knil
              (fold f (f (car lst) knil) (cdr lst)))))))
-(cond-expand
-  ((library (srfi 160 u8))
-   (import (only (srfi 160 u8) u8vector-reverse-copy!)))
-  (else
-   (begin
-     (define (u8vector-reverse-copy! to at from)
-       (do ((i (- (bytevector-length from) 1)
-            (- i 1))
-            (at at (+ at 1)))
-           ((negative? i))
-         (bytevector-u8-set! to at (bytevector-u8-ref from i)))))))
+  (cond-expand
+    ((library (srfi 160 u8))
+     (import (only (srfi 160 u8) u8vector-reverse-copy!)))
+    (else
+     (begin
+       (define (u8vector-reverse-copy! to at from)
+         (do ((i (- (bytevector-length from) 1)
+              (- i 1))
+              (at at (+ at 1)))
+             ((negative? i))
+           (bytevector-u8-set! to at (bytevector-u8-ref from i)))))))
   (cond-expand
     ((library (srfi 281))
      (import (only (srfi 281) bytevector-fill!)))
@@ -129,6 +157,43 @@
          (do ((i start (+ i 1)))
              ((= i end))
            (bytevector-u8-set! bv i u8))))))
+
+  (cond-expand
+    ((library (rnrs bytevectors))
+     (import (rnrs bytevectors)))
+    ((library (srfi 281 u64))
+     (import (srfi 281 u64)))
+    (else
+     (begin
+       (define (bytevector-u64-set! bv k n endianness)
+         (case endianness
+           ((little)
+            (do ((k k (+ k 1))
+                 (i 0 (+ i 1))
+                 (n n (floor-quotient n 256)))
+                ((= i 8))
+              (bytevector-u8-set! bv k (floor-remainder n 256))))
+           ((little)
+            (do ((k (+ k 7) (- k 1))
+                 (i 0 (+ i 1))
+                 (n n (floor-quotient n 256)))
+                ((= i 8))
+              (bytevector-u8-set! bv k (floor-remainder n 256)))))))))
+
+  (cond-expand
+    ((library (srfi 276 exception))
+     (import (srfi 276 exception))
+     (begin
+       (define-syntax maybe-raise-flexceptions!
+         (syntax-rules ()
+           ((_ exception ...)
+            (raise-flexceptions! exception ...))))))
+    (else
+     (begin
+       (define-syntax maybe-raise-flexceptions!
+         (syntax-rules ()
+           ((_ exception ...) #f))))))
+
   (include "276.constants.scm")
   (include "276.flonum.scm")
   (include "276.arith.scm")
@@ -144,7 +209,11 @@
   (include "276.fl-not-equal.scm")
   (include "276.maxmin.scm")
   (include "276.round-away.scm")
+  (include "276.round-quotient-and-remainder.scm")
+  (include "276.fltruncate-remainder.scm")
   (include "276.exp.scm")
+  (include "276.flpown.scm")
+  (include "276.rootn.scm")
   (include "276.fllog.scm")
   (include "276.cbrt.scm")
   (include "276.compound.scm")

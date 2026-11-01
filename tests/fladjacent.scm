@@ -1,3 +1,5 @@
+; SPDX-FileCopyrightText: 2026 Peter McGoron
+; SPDX-License-Identifier: MIT
 ;;;; FIXME: These constants are derived from binary64 implementations.
 ;;;; You should adapt these tests to your specific floating-point
 ;;;; format.

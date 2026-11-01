@@ -1,3 +1,5 @@
+; SPDX-FileCopyrightText: 2026 Peter McGoron
+; SPDX-License-Identifier: MIT
 ;;; This code assumes that inexact reals are radix-2 IEEE floats.
 
 (cond-expand

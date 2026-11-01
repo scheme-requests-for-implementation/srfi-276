@@ -1,3 +1,5 @@
+; SPDX-FileCopyrightText: 2026 Peter McGoron
+; SPDX-License-Identifier: MIT
 (define (test-flsgn-defining-property)
   (test-group "flsgn equivalent to flcopysign"
     (test-property

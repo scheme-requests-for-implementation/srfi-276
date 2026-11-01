@@ -1,3 +1,5 @@
+; SPDX-FileCopyrightText: 2026 Peter McGoron
+; SPDX-License-Identifier: GPL-2.0-or-later
 ;;;; This is a SRFI 64 shim for MIT-Scheme.
 
 (define tests-passed 0)
@@ -157,18 +159,19 @@
                       (tests-failed-in-group 0)
                       (tests-run-in-group 0))
          body ...
-         (display "summary for ")
-         (display name)
-         (newline)
-         (display "tests passed: ")
-         (display (tests-passed-in-group))
-         (newline)
-         (display "tests failed: ")
-         (display (tests-failed-in-group))
-         (newline)
-         (display "tests total: ")
-         (display (tests-run-in-group))
-         (newline))))))
+         (when (or (test-verbose?) (not (zero? (tests-failed-in-group))))
+           (display "summary for ")
+           (display name)
+           (newline)
+           (display "tests passed: ")
+           (display (tests-passed-in-group))
+           (newline)
+           (display "tests failed: ")
+           (display (tests-failed-in-group))
+           (newline)
+           (display "tests total: ")
+           (display (tests-run-in-group))
+           (newline)))))))
 
 (define-syntax test-approximate
   (syntax-rules ()
@@ -195,11 +198,12 @@
 		 (map call generators))
 	 (i 0 (+ i 1)))
 	((= i (default-property-tests)))
-      (display "test #")
-      (display i)
-      (display " ")
-      (write values)
-      (newline)
+      (when (test-verbose?)
+        (display "test #")
+        (display i)
+        (display " ")
+        (write values)
+        (newline))
       (test-assert (apply tester values)))))
 
 (define (list-generator-of subgenerator)

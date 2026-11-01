@@ -1,3 +1,5 @@
+; SPDX-FileCopyrightText: 2026 Peter McGoron
+; SPDX-License-Identifier: MIT
 (define (test-flerf)
   (test-group "flerf"
     (test-values (flerf 0.0) '(0.0))
@@ -20,8 +22,12 @@
 
 (define (test-flgamma)
   (test-group "flgamma"
-    (test-values (flgamma +0.0) '(+inf.0))
-    (test-values (flgamma -0.0) '(-inf.0))
+    (test-assert "(flgamma +0.0)"
+      (true-and-raises 'divide-by-zero
+        (fl=? (flgamma +0.0) +inf.0)))
+    (test-assert "(flgamma -0.0)"
+      (true-and-raises 'divide-by-zero
+        (fl=? (flgamma -0.0) -inf.0)))
     (test-values (flgamma +inf.0) '(+inf.0))
     (test-values (flgamma 1.0) '(1.0))
     (test-values (flgamma 2.0) '(1.0))
@@ -30,7 +36,9 @@
 (define (test-flgamma-on-negative-integers)
   (test-group "flgamma on negative integers"
     (test-property
-     (lambda (fl) (flnan? (flgamma fl)))
+     (lambda (fl)
+       (true-and-raises 'invalid-operation
+         (flnan? (flgamma fl))))
      (list (gfilter flnegative?
 		    (make-random-inexact-integer-generator))))))
 

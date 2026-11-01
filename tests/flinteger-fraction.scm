@@ -1,3 +1,5 @@
+; SPDX-FileCopyrightText: 2026 Peter McGoron
+; SPDX-License-Identifier: MIT
 (define (test-flinteger-fraction)
   (test-values (flinteger-fraction (flonum 1.0))
 	       (list (flonum 1.0) (flonum 0.0)))

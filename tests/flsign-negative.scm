@@ -1,3 +1,5 @@
+; SPDX-FileCopyrightText: 2026 Peter McGoron
+; SPDX-License-Identifier: MIT
 (define (test-flsign-negative?)
   (test-group "flsign-negative?"
     (test-values (flsign-negative? -1.0) '(#t))

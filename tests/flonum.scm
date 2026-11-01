@@ -1,3 +1,5 @@
+; SPDX-FileCopyrightText: 2026 Peter McGoron
+; SPDX-License-Identifier: MIT
 (define (test-flonum)
   (test-group "flonum"
     (test-predicate (flonum? (flonum 1)))

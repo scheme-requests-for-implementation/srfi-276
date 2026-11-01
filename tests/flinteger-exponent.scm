@@ -1,3 +1,5 @@
+; SPDX-FileCopyrightText: 2026 Peter McGoron
+; SPDX-License-Identifier: MIT
 (define (test-flinteger-exponent)
   (test-group "flinteger-exponent"
     (test-values (flinteger-exponent 1.0) '(0))

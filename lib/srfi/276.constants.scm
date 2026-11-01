@@ -1,3 +1,5 @@
+; SPDX-FileCopyrightText: 2016 John Cowan
+; SPDX-License-Identifier: MIT
 ;;; This is derived from the srfi-144-constants.scm file at
 ;;; https://github.com/scheme-requests-for-implementation/srfi-144
 ;;; as of 19 June 2017, with two corrections and one improvement:

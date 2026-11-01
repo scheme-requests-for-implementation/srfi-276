@@ -1,3 +1,5 @@
+; SPDX-FileCopyrightText: 2026 Peter McGoron
+; SPDX-License-Identifier: MIT
 #| The kernel for sin and cos are calculated using a minimax approximation.
 
    The calculations were done with Sollya:
@@ -156,7 +158,9 @@ to preserve correct behavior at +-0.0, that point must be special-cased.
 
 (define (flsinpi fl)
   (if (not (flfinite? fl))
-      +nan.0
+      (begin
+        (maybe-raise-flexceptions! 'invalid-operation)
+        +nan.0)
       (let-values (((ipart fpart) (flinteger-fraction fl)))
 	(cond
 	  ((and (flzero? fpart)
@@ -179,7 +183,9 @@ to preserve correct behavior at +-0.0, that point must be special-cased.
 
 (define (flcospi fl)
   (if (not (flfinite? fl))
-      +nan.0
+      (begin
+        (maybe-raise-flexceptions! 'invalid-operation)
+        +nan.0)
       (let ((a (flabs (fold-arguments fl))))
 	(cond
 	  ((fl<=? 0.0 a 0.25) (%cospi a))
@@ -254,7 +260,9 @@ Sollya output:
 
 (define (fltanpi fl)
   (if (not (flfinite? fl))
-      +nan.0
+      (begin
+        (maybe-raise-flexceptions! 'invalid-operation)
+        +nan.0)
       ;; Fold arguments into [-0.5, 0.5].
       ;; [0.5, 1.5] -> [-0.5, 0.5]
       ;; [-1.5, -0.5] -> [-0.5, 0.5]
@@ -279,18 +287,22 @@ Sollya output:
 	  ((and (flpositive? ipart)
 		(fleven? ipart)
 		(fl=? fpart 0.5))
+           (maybe-raise-flexceptions! 'divide-by-zero)
 	   +inf.0)
 	  ((and (flpositive? ipart)
 		(flodd? ipart)
 		(fl=? fpart 0.5))
+           (maybe-raise-flexceptions! 'divide-by-zero)
 	   -inf.0)
 	  ((and (flnegative? ipart)
 		(fleven? ipart)
 		(fl=? fpart -0.5))
+           (maybe-raise-flexceptions! 'divide-by-zero)
 	   -inf.0)
 	  ((and (flnegative? ipart)
 		(flodd? ipart)
 		(fl=? fpart -0.5))
+           (maybe-raise-flexceptions! 'divide-by-zero)
 	   +inf.0)
 	  (else
 	   (let* ((arg (cond

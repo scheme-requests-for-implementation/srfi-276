@@ -1,3 +1,5 @@
+; SPDX-FileCopyrightText: 2026 Peter McGoron
+; SPDX-License-Identifier: MIT
 (define (fltruncate-remainder x y)
   (let ((ax (flabs x))
         (ay (flabs y)))

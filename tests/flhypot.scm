@@ -1,3 +1,5 @@
+; SPDX-FileCopyrightText: 2026 Peter McGoron
+; SPDX-License-Identifier: MIT
 (define (test-flhypot)
   (test-group "flhypot"
     (test-values (flhypot 3.0 4.0) '(5.0))

@@ -1,9 +1,17 @@
+; SPDX-FileCopyrightText: 2026 Peter McGoron
+; SPDX-License-Identifier: MIT
 (define (test-fllog-like fllog name)
   (test-group name
     (test-values (fllog +inf.0) '(+inf.0))
-    (test-values (fllog +0.0) '(-inf.0))
-    (test-values (fllog -0.0) '(-inf.0))
-    (test-assert (flnan? (fllog -0.1)))))
+    (test-assert "(fllog* +0.0)"
+      (true-and-raises 'divide-by-zero
+        (test-values (fllog +0.0) '(-inf.0))))
+    (test-assert "(fllog* -0.0)"
+      (true-and-raises 'divide-by-zero
+        (test-values (fllog -0.0) '(-inf.0))))
+    (test-assert "(fllog* -0.1)"
+      (true-and-raises 'invalid-operation
+        (flnan? (fllog -0.1))))))
 
 (define (test-fllog)
   (test-fllog-like fllog "fllog"))

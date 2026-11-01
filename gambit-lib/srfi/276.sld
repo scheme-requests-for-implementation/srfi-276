@@ -1,3 +1,5 @@
+; SPDX-FileCopyrightText: 2026 Peter McGoron
+; SPDX-License-Identifier: MIT
 (define-library (srfi 276)
   (import (rename (except gambit let-values let*-values)
                   (fltruncate %fltruncate)
@@ -10,6 +12,8 @@
           fl-greatest fl-least fl-least-normal fl-epsilon fl-byte-width)
   (begin
     ;; This is a hack to get around a bug in Gambit
+    (define-macro (maybe-raise-flexceptions! . obj)
+      #f)
     (define-macro (let-values bindings . rest)
       (define (remap-formals formals)
         (cond
@@ -246,9 +250,10 @@ ___return(exp);")))
      (define flround-away
        (c-lambda (double) double "round")))
    ;;; Integer division
-   (export flquotient flremainder
+   (export flquotient
+           (rename fltruncate-remainder flremainder)
            (rename flquotient fltruncate-quotient)
-           (rename flremainder fltruncate-remainder)
+           fltruncate-remainder
            flremquo
            flround-quotient
            flround-remainder)
@@ -299,9 +304,12 @@ ___return(q);"))
        (lambda (y)
          (fl/ (fllog y) (fllog x)))))
    ;;; Powers and roots
-   (export flcbrt flcompound flhypot flrsqrt flsqrt)
+   (export flcbrt flcompound flhypot flrsqrt flsqrt
+           flroot flpown)
    (include "../../lib/srfi/276.compound.scm")
    (include "../../lib/srfi/276.rsqrt.scm")
+   (include "../../lib/srfi/276.rootn.scm")
+   (include "../../lib/srfi/276.flpown.scm")
    (begin
      (define flcbrt
        (c-lambda (double) double "cbrt")))

@@ -1,3 +1,5 @@
+; SPDX-FileCopyrightText: 2026 Peter McGoron
+; SPDX-License-Identifier: MIT
 (define (create-exponential-coefficients base terms)
   (let ((numerator (log base)))
     (cons

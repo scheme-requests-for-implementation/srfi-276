@@ -1,3 +1,5 @@
+; SPDX-FileCopyrightText: 2026 Peter McGoron
+; SPDX-License-Identifier: MIT
 (define (binary-fltotal=? x y)
   (or (eqv? x y)
       (and (flnan? x) (flnan? y)

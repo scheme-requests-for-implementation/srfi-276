@@ -1,9 +1,15 @@
+; SPDX-FileCopyrightText: 2026 Peter McGoron
+; SPDX-License-Identifier: MIT
 (define (test-flsinpi)
   (test-group "flsinpi"
     (test-values (flsinpi 0.0) '(0.0))
     (test-values (flsinpi -0.0) '(-0.0))
-    (test-predicate (flnan? (flsinpi +inf.0)))
-    (test-predicate (flnan? (flsinpi -inf.0)))
+    (test-assert "(flsinpi +inf.0)"
+      (true-and-raises 'invalid-operation
+        (flnan? (flsinpi +inf.0))))
+    (test-assert "(flsinpi -inf.0)"
+      (true-and-raises 'invalid-operation
+        (flnan? (flsinpi -inf.0))))
     (test-many-approximate flsinpi
 			   1e-6
 			   (fl-1/sqrt-2 0.25)
@@ -37,8 +43,12 @@
   (test-group "flcospi"
     (test-values (flcospi 0.0) '(1.0))
     (test-values (flcospi -0.0) '(1.0))
-    (test-predicate (flnan? (flcospi +inf.0)))
-    (test-predicate (flnan? (flcospi -inf.0)))
+    (test-assert "(flcospi +inf.0)"
+      (true-and-raises 'invalid-operation
+        (flnan? (flcospi +inf.0))))
+    (test-assert "(flcospi -inf.0)"
+      (true-and-raises 'invalid-operation
+        (flnan? (flcospi -inf.0))))
     (test-many-approximate flcospi
 			   1e-6
 			   (fl-1/sqrt-2 0.25)
@@ -74,12 +84,24 @@
     (test-values (fltanpi 0.0) '(0.0))
     (test-values (fltanpi -0.0) '(-0.0))
     (test-values (fltanpi 0.25) '(1.0))
-    (test-predicate (flnan? (fltanpi +inf.0)))
-    (test-predicate (flnan? (fltanpi -inf.0)))
-    (test-values (fltanpi 0.5) '(+inf.0))
-    (test-values (fltanpi -0.5) '(-inf.0))
-    (test-values (fltanpi 1.5) '(-inf.0))
-    (test-values (fltanpi -1.5) '(+inf.0))))
+    (test-assert "(fltanpi +inf.0)"
+      (true-and-raises 'invalid-operation
+        (flnan? (fltanpi +inf.0))))
+    (test-assert "(fltanpi -inf.0)"
+      (true-and-raises 'invalid-operation
+        (flnan? (fltanpi -inf.0))))
+    (test-assert "(fltanpi 0.5)"
+      (true-and-raises 'divide-by-zero
+        (fl=? (fltanpi 0.5) +inf.0)))
+    (test-assert "(fltanpi -0.5)"
+      (true-and-raises 'divide-by-zero
+        (fl=? (fltanpi -0.5) -inf.0)))
+    (test-assert "(fltanpi 1.5)"
+      (true-and-raises 'divide-by-zero
+        (fl=? (fltanpi 1.5) -inf.0)))
+    (test-assert "(fltanpi -1.5)"
+      (true-and-raises 'divide-by-zero
+        (fl=? (fltanpi -1.5) +inf.0)))))
 
 (define (test-fltanpi-odd)
   (test-group "fltanpi is odd"
@@ -140,7 +162,8 @@
   (test-group "fltanpi on positive, even integers + 0.5 returns positive infinity"
     (test-property
      (lambda (fl)
-       (fl=? (fltanpi fl) +inf.0))
+       (true-and-raises 'divide-by-zero
+         (fl=? (fltanpi fl) +inf.0)))
      (list
       (gcons* 0.5 2.5
 	      (gfilter (lambda (fl)
@@ -153,7 +176,8 @@
   (test-group "fltanpi on negative, odd integers - 0.5 returns positive infinity"
     (test-property
      (lambda (fl)
-       (fl=? (fltanpi fl) +inf.0))
+       (true-and-raises 'divide-by-zero
+         (fl=? (fltanpi fl) +inf.0)))
      (list
       (gcons* -1.5 -3.5
 	      (gfilter (lambda (fl)
@@ -166,7 +190,8 @@
   (test-group "fltanpi on positive, odd integers + 0.5 returns negative infinity"
     (test-property
      (lambda (fl)
-       (fl=? (fltanpi fl) -inf.0))
+       (true-and-raises 'divide-by-zero
+         (fl=? (fltanpi fl) -inf.0)))
      (list
       (gcons* 1.5 3.5
 	      (gfilter (lambda (fl)
@@ -179,7 +204,8 @@
   (test-group "fltanpi on negative, even integers - 0.5 returns negative infinity"
     (test-property
      (lambda (fl)
-       (fl=? (fltanpi fl) -inf.0))
+       (true-and-raises 'divide-by-zero
+         (fl=? (fltanpi fl) -inf.0)))
      (list
       (gcons* -0.5 -2.5
 	      (gfilter (lambda (fl)

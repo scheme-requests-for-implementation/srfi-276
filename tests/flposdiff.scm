@@ -1,3 +1,5 @@
+; SPDX-FileCopyrightText: 2026 Peter McGoron
+; SPDX-License-Identifier: MIT
 (define (test-flposdiff)
   (test-group "flposdiff"
     (test-values (flposdiff -0.0 0.0) '(0.0))

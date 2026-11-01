@@ -1,3 +1,5 @@
+; SPDX-FileCopyrightText: 2026 Peter McGoron
+; SPDX-License-Identifier: MIT
 (define (test-fltruncate)
   (test-group "fltruncate"
     (test-values (fltruncate 0.0) '(0.0))

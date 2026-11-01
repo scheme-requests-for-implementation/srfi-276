@@ -1,3 +1,5 @@
+; SPDX-FileCopyrightText: 2026 Peter McGoron
+; SPDX-License-Identifier: MIT
 ;;; Stef Graillat. Accurate Floating Point Product and
 ;;; Exponentiation. IEEE Transactions on Computers, 2009, 58 (7),
 ;;; pp.994-1000. ⟨10.1109/TC.2008.215⟩. ⟨hal-00164607⟩
@@ -35,9 +37,13 @@
   (unless (integer? n)
     (error "not an integer" n))
   (cond
-    ((fl<? fl -1.0) +nan.0)
+    ((fl<? fl -1.0)
+     (maybe-raise-flexceptions! 'invalid-operation)
+     +nan.0)
     ((and (fl>=? fl -1.0) (zero? n)) 1.0)
-    ((and (fl=? fl -1.0) (negative? n)) +inf.0)
+    ((and (fl=? fl -1.0) (negative? n))
+     (maybe-raise-flexceptions! 'divide-by-zero)
+     +inf.0)
     ((and (fl=? fl -1.0) (positive? n)) +0.0)
     ((and (fl=? fl +inf.0) (positive? n)) +inf.0)
     ((and (fl=? fl +inf.0) (negative? n)) +0.0)

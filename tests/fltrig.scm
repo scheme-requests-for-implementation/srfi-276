@@ -1,9 +1,15 @@
+; SPDX-FileCopyrightText: 2026 Peter McGoron
+; SPDX-License-Identifier: MIT
 (define (test-flsin)
   (test-group "flsin"
     (test-values (flsin 0.0) '(0.0))
     (test-values (flsin -0.0) '(-0.0))
-    (test-predicate (flnan? (flsin +inf.0)))
-    (test-predicate (flnan? (flsin -inf.0)))
+    (test-assert "(flsin +inf.0)"
+      (true-and-raises 'invalid-operation
+        (flnan? (flsin +inf.0))))
+    (test-assert "(flsin -inf.0)"
+      (true-and-raises 'invalid-operation
+        (flnan? (flsin -inf.0))))
     (test-many-approximate flsin
 			   1e-6
 			   (fl-1/sqrt-2 fl-pi/4)
@@ -30,8 +36,12 @@
   (test-group "flcos"
     (test-values (flcos 0.0) '(1.0))
     (test-values (flcos -0.0) '(1.0))
-    (test-predicate (flnan? (flcos +inf.0)))
-    (test-predicate (flnan? (flcos -inf.0)))
+    (test-assert "(flcos +inf.0)"
+      (true-and-raises 'invalid-operation
+        (flnan? (flcos +inf.0))))
+    (test-assert "(flcos -inf.0)"
+      (true-and-raises 'invalid-operation
+        (flnan? (flcos -inf.0))))
     (test-many-approximate flcos
 			   1e-6
 			   (fl-1/sqrt-2 fl-pi/4)
@@ -58,8 +68,12 @@
   (test-group "fltan"
     (test-values (fltan 0.0) '(0.0))
     (test-values (fltan -0.0) '(-0.0))
-    (test-predicate (flnan? (fltan +inf.0)))
-    (test-predicate (flnan? (fltan -inf.0)))
+    (test-assert "(fltan +inf.0)"
+      (true-and-raises 'invalid-operation
+        (flnan? (fltan +inf.0))))
+    (test-assert "(fltan -inf.0)"
+      (true-and-raises 'invalid-operation
+        (flnan? (fltan -inf.0))))
     (test-many-approximate fltan
 			   1e-6
 			   (0.0 fl-pi)

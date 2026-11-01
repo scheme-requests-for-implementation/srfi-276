@@ -1,3 +1,5 @@
+; SPDX-FileCopyrightText: 2026 Peter McGoron
+; SPDX-License-Identifier: MIT
 (define (test-flcopysign)
   (test-group "flcopysign"
     (test-values (flcopysign (flonum 0.0) (flonum 1.0))

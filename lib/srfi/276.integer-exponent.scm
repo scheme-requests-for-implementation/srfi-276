@@ -1,3 +1,5 @@
+; SPDX-FileCopyrightText: 2026 Peter McGoron
+; SPDX-License-Identifier: MIT
 ;; RATIONALE:
 ;;
 ;; The largest IEEE format number that has a wikipedia article is

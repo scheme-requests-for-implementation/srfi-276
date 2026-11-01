@@ -1,3 +1,5 @@
+; SPDX-FileCopyrightText: 2026 Peter McGoron
+; SPDX-License-Identifier: MIT
 (define (test-flexp)
   (test-group "flexp"
     (test-values (flexp 0.0) '(1.0))
@@ -67,11 +69,12 @@
 	   (zero-generator)))))
 
 (define (test-flexpt-0.0-negative-odd)
-  (test-group "(flexpt zero odd) returns infinity"
+  (test-group "(flexpt zero negative-odd) returns infinity"
     (test-property
      (lambda (fl zero)
-       (fl=? (flexpt zero fl)
-	     (flcopysign +inf.0 zero)))
+       (true-and-raises 'divide-by-zero
+         (fl=? (flexpt zero fl)
+	       (flcopysign +inf.0 zero))))
      (list (gfilter (lambda (x)
 		      (and (flodd? x)
 			   (flnegative? x)))
@@ -81,7 +84,8 @@
 (define (test-flexpt-0.0-negative-not-odd)
   (let ((prop
 	 (lambda (fl zero)
-	   (fl=? (flexpt zero fl) +inf.0)))
+	   (true-and-raises 'divide-by-zero
+	     (fl=? (flexpt zero fl) +inf.0))))
 	(predicate?
 	 (lambda (x)
 	   (and (or (not (flinteger? x)) (not (flodd? x)))
@@ -103,7 +107,8 @@
   (test-group "(flexpt negative non-integer) returns NaN"
     (test-property
      (lambda (negative-fl non-integer-fl)
-       (flnan? (flexpt negative-fl non-integer-fl)))
+       (true-and-raises 'invalid-operation
+         (flnan? (flexpt negative-fl non-integer-fl))))
      (list
       (gfilter flnegative? (make-random-finite-flonum-generator))
       (gremove flinteger? (make-random-finite-flonum-generator))))))

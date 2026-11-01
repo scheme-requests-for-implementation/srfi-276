@@ -1,3 +1,5 @@
+; SPDX-FileCopyrightText: 2026 Peter McGoron
+; SPDX-License-Identifier: MIT
 (define (test-make-flonum)
   (test-values (make-flonum 1.0 0)
 	       '(1.0))

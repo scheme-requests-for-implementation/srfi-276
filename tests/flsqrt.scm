@@ -1,3 +1,5 @@
+; SPDX-FileCopyrightText: 2026 Peter McGoron
+; SPDX-License-Identifier: MIT
 (define (test-flsqrt)
   (test-group "flsqrt"
     (test-values (flsqrt 0.0) '(0.0))

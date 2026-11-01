@@ -1,3 +1,5 @@
+; SPDX-FileCopyrightText: 2026 Peter McGoron
+; SPDX-License-Identifier: MIT
  ;;;; See 276.trigpi.scm for comments on where constants come from.
 
 (define (%asinpi fl)
@@ -58,9 +60,10 @@ Output:
   (let ((a (flabs fl)))
     (cond
      ((flnan? fl) fl)
-     ((not (flfinite? a)) +nan.0)
      ((flzero? fl) fl)
-     ((fl>? a 1.0) +nan.0)
+     ((fl>? a 1.0)
+      (maybe-raise-flexceptions! 'invalid-operation)
+      +nan.0)
      ((fl<? a 0.5)
       (flcopysign (%asinpi a) fl))
      (else
@@ -76,8 +79,9 @@ Output:
   (let ((a (flabs fl)))
     (cond
       ((flnan? fl) fl)
-      ((not (flfinite? a)) +nan.0)
-      ((fl>? a 1.0) +nan.0)
+      ((fl>? a 1.0)
+       (maybe-raise-flexceptions! 'invalid-operation)
+       +nan.0)
       ((fl<? a 0.5)
        ;; FIXME: This might cause precision loss.
        ;; Maybe instead just use Sollya to generate a polynomial?

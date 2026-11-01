@@ -1,3 +1,5 @@
+; SPDX-FileCopyrightText: 2026 Peter McGoron
+; SPDX-License-Identifier: MIT
 (define (test-flround)
   (test-group "flround"
     (test-values (flround 0.0) '(0.0))

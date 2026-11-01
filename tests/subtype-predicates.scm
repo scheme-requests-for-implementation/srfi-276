@@ -1,3 +1,5 @@
+; SPDX-FileCopyrightText: 2026 Peter McGoron
+; SPDX-License-Identifier: MIT
 (define (test-flinteger?)
   (test-group "flinteger?"
     (test-assert (flinteger? -0.0))

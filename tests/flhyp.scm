@@ -1,3 +1,5 @@
+; SPDX-FileCopyrightText: 2026 Peter McGoron
+; SPDX-License-Identifier: MIT
 (define (test-flsinh)
   (test-group "flsinh"
     (test-values (flsinh 0.0) '(0.0))
@@ -62,7 +64,9 @@
 (define (test-flacosh-below-one)
   (test-group "flacosh below one is NaN"
     (test-property
-     (lambda (fl) (flnan? (flacosh fl)))
+     (lambda (fl)
+       (true-and-raises 'invalid-operation
+         (flnan? (flacosh fl))))
      (list random-real))))
 
 (define (test-flatanh)

@@ -1,3 +1,5 @@
+; SPDX-FileCopyrightText: 2026 Peter McGoron
+; SPDX-License-Identifier: MIT
 (define (test-flnormalized-fraction-exponent)
   (test-values (flnormalized-fraction-exponent 1.0)
 	       '(0.5 1))

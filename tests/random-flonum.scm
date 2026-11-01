@@ -1,3 +1,5 @@
+; SPDX-FileCopyrightText: 2026 Peter McGoron
+; SPDX-License-Identifier: MIT
 ;;;; NOTE: SRFI 26 specific.
 ;;;;
 ;;;; FIXME: Many of these generators are definitely not uniform.
@@ -110,3 +112,23 @@
 		     (zero? (random-integer 2))))))
   (else))
 
+(define (make-random-even-integer-generator)
+  (gcons* 2 -2 (gfilter even? (integer-generator))))
+
+(define (make-random-odd-integer-generator)
+  (gcons* 1 -1 3 -3 (gfilter odd? (integer-generator))))
+
+(cond-expand
+  ((not (library (srfi 252)))
+   (define (integer-generator)
+     (let ((in (make-random-inexact-integer-generator))
+	   (ex (lambda () (- (random-integer (expt 2 64))
+			     (expt 2 63)))))
+       (gcons* 0 1 -1 2 -2 3 -3 4 -4
+	       0.0 1.0 -1.0 2.0 -2.0 3.0 -3.0 4.0 -4.0
+	       (gmap (lambda (x)
+		       (if (zero? x)
+			   (in)
+			   (ex)))
+		     (lambda () (random-integer 2)))))))
+  (else))

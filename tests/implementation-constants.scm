@@ -1,3 +1,5 @@
+; SPDX-FileCopyrightText: 2026 Peter McGoron
+; SPDX-License-Identifier: MIT
 (define (test-fl-radix)
   (test-group "fl-radix"
     (test-predicate (exact-integer? fl-radix))

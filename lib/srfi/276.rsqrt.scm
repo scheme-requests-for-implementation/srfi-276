@@ -1,8 +1,14 @@
+; SPDX-FileCopyrightText: 2026 Peter McGoron
+; SPDX-License-Identifier: MIT
 (define (flrsqrt fl)
   (cond
-    ((flzero? fl) (flcopysign +inf.0 fl))
+    ((flzero? fl)
+     (maybe-raise-flexceptions! 'divide-by-zero)
+     (flcopysign +inf.0 fl))
     ((fl=? fl +inf.0) 0.0)
-    ((flnegative? fl) +nan.0)
+    ((flnegative? fl)
+     (maybe-raise-flexceptions! 'invalid-operation)
+     +nan.0)
     (else
      ;; fl = s*b^e
      ;; fl^-1/2 = s^-1/2 b^-e/2

@@ -1,3 +1,5 @@
+; SPDX-FileCopyrightText: 2026 Peter McGoron
+; SPDX-License-Identifier: MIT
 (define (flonum->bytevector fl)
   (let ((bv (make-bytevector fl-byte-width)))
     (bytevector-flonum-set! bv 0 fl 'big)

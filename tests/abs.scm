@@ -1,3 +1,5 @@
+; SPDX-FileCopyrightText: 2026 Peter McGoron
+; SPDX-License-Identifier: MIT
 (define (test-flabs)
   (test-group "flabs"
     (test-values (flabs 0.0) '(0.0))

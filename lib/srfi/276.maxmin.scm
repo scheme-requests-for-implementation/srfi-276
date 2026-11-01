@@ -1,3 +1,5 @@
+; SPDX-FileCopyrightText: 2026 Peter McGoron
+; SPDX-License-Identifier: MIT
 (define (flmax-filter-nans-binary x y)
   (cond
     ((flnan? x) y)

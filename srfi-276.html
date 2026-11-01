@@ -205,7 +205,6 @@ SPDX-License-Identifier: MIT
     Rounding mode libraries</a></li>
   <li><a href="#exception-libraries">
   Floating-point exception library</a></li>
-  <li><a href="#environment">Floating point environment library</a></li>
   <li><a href="#implications">Implications of IEEE arithmetic for optimizers</a></li>
   <li><a href="#examples">Examples</a></li>
   <li><a href="#considerations">Considerations for inexact number vectors</a></li>
@@ -218,28 +217,6 @@ between this SRFI and other standards</a></li>
   <li><a href="#copyright">Copyright</a></li>
 </ol>
 
-<h2 id="issues"><a href="#issues"></a>Issues</h2>
-
-<ul>
-  <li>
-    Should this include conversion to/from f32 and f64 vectors,
-    and should it specify that f32vectors are vectors of binary32
-    numbers, etc?
-  </li>
-  <li>
-    Should conversion procedures raise an exception if a NaN value
-    is unacceptable, or should implementations be allowed to coerce it?
-  </li>
-  <li>
-    IEEE 754-2019 mandates that some procedures return non-NaN values even
-    when given NaN values: for example, <code>(flexpt 1.0 +nan.0)</code>
-    ⇒ 1.0 if the NaN is a quiet NaN. The quiet NaN is the one usually
-    returned from floating point operations. This conflicts with the
-    usual view of Scheme inexact numbers, where <code>1.0</code> is an
-    approximation of 1.0. How do we handle this?
-  </li>
-</ul>
-
 <h2 id="rationale"><a href="#rationale"></a>Rationale</h2>
 <p><em>This section is non-normative.</em></p>
 
@@ -248,12 +225,15 @@ between this SRFI and other standards</a></li>
   of inexact numbers.
   From the <span class="report-name">R<sup>4</sup>RS</span> onward,
   implementations could use <code>s</code>, <code>f</code>, <code>d</code>,
-  and <code>l</code> to denote inexact constants of different precisions.
-  The <span class="report-name">R<sup>6</sup>RS</span> and
-  <a href="https://srfi.schemers.org/srfi-144/">SRFI 144</a> included
-  “flonum” operations. However, these specifications do not specify what
-  the format of the flonum is. The flonum might not be an IEEE format
-  number and operations may differ from implementation to implementation.
+  and <code>l</code> to denote inexact constants of different precisions,
+  but the precisions of such numbers was not specified.
+  The <span class="report-name">R<sup>6</sup>RS</span> added a “flonum”
+  operations library, but did not specify the format or precision of
+  a flonum.
+  <a href="https://srfi.schemers.org/srfi-144/">SRFI 144</a> is the
+  current <span class="report-name">R<sup>7</sup>RS</span>-Large
+  flonum library, which defers to C99 in terms of its flonums, except
+  that flonums must be represented with radix 2.
 </p>
 
 <p>
@@ -266,9 +246,9 @@ between this SRFI and other standards</a></li>
 
 <p>
   This SRFI also updates SRFI 144 to include the recommended procedures
-  described in IEEE 754-2019, which are further included in C23. An
+  described in IEEE 754-2019 that are also included in C23. An
   implementation of this library can implement the new procedures as an
-  FFI to C23: the definitions between this SRFI and C23 are harmonized.
+  FFI to C23.
 </p>
 
 <h3 id="speed-portability-and-ease-of-use"><a href="#speed-portability-and-ease-of-use"></a>Speed and Portability vs. Ease of Use</h3>
@@ -316,7 +296,9 @@ between this SRFI and other standards</a></li>
   This SRFI defines procedures that mirror functions in C23’s math
   library, which are in turn based off of IEEE 754-2019’s recommended
   functions. These functions are expected to be widely available with
-  stable implementations.
+  stable and efficient implementations. Some functions were dropped
+  because they were specific to decimal floats, or were judged redundant
+  (<code>powr</code>).
 </p>
 
 <p>
@@ -330,6 +312,80 @@ between this SRFI and other standards</a></li>
   implementations, the entire range of special functions can be
   implemented in pure Scheme.
 </p>
+
+<h3 id="rationale2"><a href="#rationale2"></a> Rationale for some of
+the added procedures</h3>
+
+<ol>
+  <li><a href="#flneq"><code>fl!=?</code></a> preserves the fact NaNs are
+      unordered. Hence, <code>(fl!=? <var>x</var> +nan.0)</code> is
+      always false.</li>
+  <li>The <a href="#flonum-total-comp">total ordering predicates</a>
+      impose a useful ordering when one wants to store floating point
+      numbers in an ordered set, without worrying about issues such
+      as signed zero or NaNs.</li>
+  <li>The <a href="#flmax-abs-filter-nans">maximum
+      and minimum procedures</a> provide both NaN-on-NaN and ignore-NaN
+      semantics, because both of these are common behavior.
+  </li>
+  <li>The <a href="#flmax-abs-filter-nans">absolute-value maximum
+      and minimum procedures</a> provide a disambiguation step when
+      two values have the same absolute value (the value with the
+      positive sign prevails) to keep the procedure robust to reordering
+      of the arguments.</li>
+  <li>The <a href="#flcompound"><code>flcompound</code></a> procedure
+      can calculate the repeated multiplication of numbers that cannot be
+      represented in the floating point format. The binomial expansion
+      is
+      <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+      <msup>
+       <mrow>
+        <mo>(</mo>
+        <mn>1</mn>
+        <mo>+</mo>
+        <mi>x</mi>
+        <mo>)</mo>
+       </mrow>
+       <mi>n</mi>
+      </msup>
+      <mo>=</mo>
+      <mn>1</mn>
+      <mo>+</mo>
+      <mi>n</mi>
+      <mo>&#x2062;</mo>
+      <mi>x</mi>
+      <mo>+</mo>
+      <mi>O</mi>
+      <mrow>
+       <mo>(</mo>
+       <msup><mi>x</mi>
+             <mn>2</mn>
+       </msup>
+       <mo>)</mo>
+      </mrow>
+      </math>
+      <p>For example, 1.0 + 1e&minus;16 is not representable as a
+         Binary64 number, but 1.0 + (100)1e&minus;16 is.
+         Hence, <code>(flexpt (fl+ 1.0 1e-16) 100.0)</code> would not
+         give the correct answer, but
+         <code>(flcompound 1e-16 100)</code> would.
+  </li>
+  <li><a href="#flroot"><code>flroot</code></a> can implement finding
+      the <var>n</var><sup>th</sup> root using a specialized algorithm
+      that would be more difficult for
+      <a href="#flexpt"><code>flexpt</code></a> to use, because the
+      reciprocal of an integer is harder to detect than an integer.
+  </li>
+  <li><a href="#flsinpi"><code>flsinpi</code></a> is more useful
+      when numbers are represented in a fraction of revolutions,
+      such as degrees. The pi procedures can reduce integers without
+      extra error, unlike trying to multiply or divide by π, a
+      trancendental constant.
+  </li>
+  <li><a href="#bytevector-flonum-ref"><code>bytevector-flonum-ref</code></a>
+      allows for serialization/deserialization of the flonum without
+      fixing a specific format.</li>
+</ol>
 
 <h2 id="terminology"><a href="#terminology"></a>Terminology</h2>
 
@@ -372,13 +428,27 @@ between this SRFI and other standards</a></li>
 </p>
 
 <p>
-  If an implementation does not support the floating point environment
+  If an implementation does not support the floating point exception
   library, then it does not need to implement the exception behavior as
   described in the library section. Additionally, an implementation may
   support other exception handling modes, such as raising a Scheme
   exception when a floating-point exception is raised. However, every
   implementation must support a <dfn>non-stop</dfn> mode, where all
   operations return values when given the correct argument types.
+</p>
+
+<p>
+  If an implementation does support the floating point exception library,
+  then it must implement the exceptions as specified in the description
+  of each procedure and in this paragraph. Procedures should raise
+  the <code>inexact</code> exception when a procedure returns a result
+  that is rounded from the infinitely precise value.  Procedures must
+  raise the <code>overflow</code> exception if they detect that the
+  mathematically exact result is larger in magnitude than the largest
+  finite flonum. Procedures must raise the <code>underflow</code>
+  exception if the implementation detects that the returned number lies
+  strictly between ±<var>b</var><sup>e<sub>min</sub></sup>. Whether or
+  not this is detected before or after rounding is implementation defined.
 </p>
 
 <p>
@@ -460,8 +530,9 @@ between this SRFI and other standards</a></li>
   </li>
 <li>if <var>exception</var> is not a floating point exception
     (see <code><a href="#flexception-namep">flexception-name?</a></code>)</li>
-<li>if <var>flenvironment</var> is not a floating point environment
-    (see <code><a href="#flenvironmentp">flenvironment?</a></code>)</li>
+<li>if <var>exception-or-list</var> is not a floating point exception
+    (see <code><a href="#flexception-namep">flexception-name?</a></code>)
+    or a list of floating point exceptions.</li>
 </ul>
 
 <p>
@@ -546,8 +617,6 @@ between this SRFI and other standards</a></li>
 <dd>Operation on the global rounding mode.</dd>
 <dt><code>(srfi 276 exceptions)</code></dt>
 <dd>Operation regarding floating-point exceptions.</dd>
-<dt><code>(srfi 276 environment)</code></dt>
-<dd>Operation on the floating point environment.</dd>
 </dl>
 
 <p>
@@ -1023,11 +1092,11 @@ flonums.</p>
 
 <table>
 <tr><th>Operation</th><th>Side conditions</th><th>Exceptions</th><th>Return</th></tr>
-<tr><td><code>(flinteger-fraction ±0.0)</code></td>
+<tr><td><code>(flexponent ±0.0)</code></td>
     <td></td>
     <td>DivideByZero</td>
     <td>&minus;∞</td></tr>
-<tr><td><code>(flinteger-fraction <var>x</var>)</code></td>
+<tr><td><code>(flexponent <var>x</var>)</code></td>
     <td><var>x</var> infinite</td>
     <td></td>
     <td><code>+inf.0</code></td></tr></table>
@@ -1514,7 +1583,8 @@ flonums.</p>
 <li>If any argument is a NaN, NaN is returned.</li>
 <li>Infinity added to a finite number returns that infinity.</li>
 <li>Two infinities of the same sign return an infinity of the same sign.</li>
-<li>Two infinities of opposite signs return a NaN.</li>
+<li>Two infinities of opposite signs return a NaN and raise the
+    invalidOperation exception.</li>
 <li>Let <var>fl</var> be a zero. Then <code>(fl+ <var>fl</var> <var>fl</var>)</code>
     returns <var>fl</var>.</li>
 <li>Let <var>fl<sub>1</sub></var> and <var>fl<sub>2</sub></var> be
@@ -1522,6 +1592,10 @@ flonums.</p>
     returned zero is negative in roundTowardsNegative mode, and positive
     in all other rounding modes.</li>
 </ol>
+
+<p>
+  This procedure associates to the left.
+</p>
 
 <p>
   The following examples assume that the rounding mode is not
@@ -1551,9 +1625,11 @@ flonums.</p>
   implementation-defined.
 </p>
 <p>
-  When two or more arguments are given, calculates the difference of those
-  arguments. The result is equivalent to <code>(fl+ <var>fl<sub>1</sub></var>
-(fl- <var>fl<sub>2</sub></var>) &hellip;)</code>.
+  When two or more arguments are given, calculates the difference of
+  those arguments, associating to the left. The special cases of
+  <code>fl-</code> are the special cases of
+  <code>fl+</code> with the second argument’s
+  sign flipped.
 </p>
 
 <div class="feature">
@@ -1575,7 +1651,8 @@ flonums.</p>
 <ol>
 <li>If any argument is a NaN, NaN is returned.</li>
 <li>Infinity times a finite number returns an infinity.</li>
-<li>Infinity times a zero returns a NaN.</li>
+<li>Infinity times a zero returns a NaN and raises the invalidOperation
+    exception. </li>
 </ol>
 
 <p>
@@ -1606,11 +1683,11 @@ flonums.</p>
 <li>Infinity divided by a finite number returns an infinity with the
     appropriate sign.</li>
 <li>A finite number divided by zero will return an appropriately signed
-    infinity and raises the invalid operation exception.</li>
-<li>Zero divided by zero returns a NaN and signals the invalid
-operation exception.</li>
-<li>Infinity divided by infinity returns a NaN and signals the invalid
-operation exception.</li>
+    infinity and raises the divideByZero exception.</li>
+<li>Zero divided by zero returns a NaN and signals the invalidOperation
+exception.</li>
+<li>Infinity divided by infinity returns a NaN and signals the
+invalidOperation exception.</li>
 </ol>
 
 <p>
@@ -2239,6 +2316,131 @@ operation exception.</li>
 <tr><td><code>(flsqrt ±0.0)</code></td><td></td><td></td><td><code>±0.0</code></td></tr>
 <tr><td><code>(flsqrt +inf.0)</code></td><td></td><td></td><td><code>+inf.0</code></td></tr>
 <tr><td><code>(flsqrt x)</code></td><td><var>x</var> &lt; 0</td><td></td><td>NaN</td>
+</table>
+
+<div class="feature">
+<span class="category">(srfi 276 ⟨library⟩)<br>procedure</span>
+<code class="signature">(<a href="#flpown" id="flpown">flpown</a> <var>fl</var> <var>n</var>)</code><br>
+</div>
+
+<p>
+  Return <var>fl</var> raised to the power of <var>n</var>.
+</p>
+
+<table>
+<tr><th>Operation</th><th>Side conditions</th><th>Exceptions</th><th>Return</th></tr>
+<tr><td><code>(flpown <var>x</var> 0)</code></td>
+    <td></td>
+    <td></td>
+    <td>1.0</td>
+</tr>
+<tr><td><code>(flpown ±0.0 <var>n</var>)</code></td>
+    <td><var>n</var> &lt; 0, <var>n</var> odd</td>
+    <td>divideByZero</td>
+    <td><code>±inf.0</code></td>
+</tr>
+<tr><td><code>(flpown ±0.0 <var>n</var>)</code></td>
+    <td><var>n</var> &lt; 0, <var>n</var> even</td>
+    <td>divideByZero</td>
+    <td><code>+inf.0</code></td>
+</tr>
+<tr><td><code>(flpown ±0.0 <var>n</var>)</code></td>
+    <td><var>n</var> &gt; 0, <var>n</var> even</td>
+    <td></td>
+    <td><code>+0.0</code></td>
+</tr>
+<tr><td><code>(flpown ±0.0 <var>n</var>)</code></td>
+    <td><var>n</var> &gt; 0, <var>n</var> odd</td>
+    <td></td>
+    <td><code>±0.0</code></td>
+</tr>
+<tr><td><code>(flpown +inf.0 <var>n</var>)</code></td>
+    <td><var>n</var> &gt; 0</td>
+    <td></td>
+    <td><code>+inf.0</code></td>
+</tr>
+<tr><td><code>(flpown -inf.0 <var>n</var>)</code></td>
+    <td><var>n</var> &gt; 0, <var>n</var> odd</td>
+    <td></td>
+    <td><code>-inf.0</code></td>
+</tr>
+<tr><td><code>(flpown -inf.0 <var>n</var>)</code></td>
+    <td><var>n</var> &gt; 0, <var>n</var> even</td>
+    <td></td>
+    <td><code>+inf.0</code></td>
+</tr>
+<tr><td><code>(flpown +inf.0 <var>n</var>)</code></td>
+    <td><var>n</var> &lt; 0</td>
+    <td></td>
+    <td><code>+0.0</code></td>
+</tr>
+<tr><td><code>(flpown -inf.0 <var>n</var>)</code></td>
+    <td><var>n</var> &lt; 0, <var>n</var> odd</td>
+    <td></td>
+    <td><code>-0.0</code></td>
+</tr>
+<tr><td><code>(flpown -inf.0 <var>n</var>)</code></td>
+    <td><var>n</var> &lt; 0, <var>n</var> even</td>
+    <td></td>
+    <td><code>+0.0</code></td>
+</tr>
+</table>
+
+<div class="feature">
+<span class="category">(srfi 276 ⟨library⟩)<br>procedure</span>
+<code class="signature">(<a href="#flroot" id="flroot">flroot</a> <var>fl</var> <var>n</var>)</code><br>
+</div>
+
+<p>
+  Returns the <var>n</var>th root of <var>fl</var>.
+</p>
+
+<table>
+<tr><th>Operation</th><th>Side conditions</th><th>Exceptions</th><th>Return</th></tr>
+<tr><td><code>(flroot ±0.0 <var>n</var>)</code></td>
+    <td><var>n</var> odd, <var>n</var> &lt; 0</td>
+    <td>divideByZero</td>
+    <td><code>±inf.0</code></td></tr>
+<tr><td><code>(flroot ±0.0 <var>n</var>)</code></td>
+    <td><var>n</var> even, <var>n</var> &lt; 0</td>
+    <td>divideByZero</td>
+    <td><code>+inf.0</code></td></tr>
+<tr><td><code>(flroot ±0.0 <var>n</var>)</code></td>
+    <td><var>n</var> even, <var>n</var> &gt; 0</td>
+    <td></td>
+    <td><code>+0.0</code></td></tr>
+<tr><td><code>(flroot ±0.0 <var>n</var>)</code></td>
+    <td><var>n</var> odd, <var>n</var> &gt; 0</td>
+    <td></td>
+    <td><code>±0.0</code></td></tr>
+<tr><td><code>(flroot +inf.0 <var>n</var>)</code></td>
+    <td><var>n</var> &gt; 0</td>
+    <td></td>
+    <td><code>+inf.0</code></td></tr>
+<tr><td><code>(flroot -inf.0 <var>n</var>)</code></td>
+    <td><var>n</var> odd, <var>n</var> &gt; 0</td>
+    <td></td>
+    <td><code>-inf.0</code></td></tr>
+<tr><td><code>(flroot -inf.0 <var>n</var>)</code></td>
+    <td><var>n</var> even, <var>n</var> &gt; 0</td>
+    <td>invalidOperation</td>
+    <td>NaN</td></tr>
+<tr><td><code>(flroot +inf.0 <var>n</var>)</code></td>
+    <td><var>n</var> &lt; 0</td>
+    <td></td>
+    <td><code>-0.0</code></td></tr>
+<tr><td><code>(flroot -inf.0 <var>n</var>)</code></td>
+    <td><var>n</var> even, <var>n</var> &lt; 0</td>
+    <td>invalidOperation</td>
+    <td>NaN</td></tr>
+<tr><td><code>(flroot <var>x</var> 0)</code></td>
+    <td></td>
+    <td>invalidOperation</td>
+    <td>NaN</td></tr>
+<tr><td><code>(flroot <var>x</var> <var>n</var>)</code></td>
+    <td><var>x</var> &lt; 0, <var>n</var> even</td>
+    <td>invalidOperation</td>
+    <td>NaN</td></tr>
 </table>
 
 <h3 id="trigonometric"><a href="#trigonometric"></a>Trigonometric functions</h3>
@@ -3033,6 +3235,12 @@ should round-trip NaNs.</p>
 <h2 id="rounding-mode-library"><a href="#rounding-mode-library"></a>
     Rounding mode libraries</h2>
 
+<p>
+  If the implementation allows one to change the rounding mode, it
+  must support <code>round-to-nearest/ties-to-even</code>, and should
+  support the other modes.
+</p>
+
 <div class="feature" id="current-rounding-mode">
 <span class="category">(srfi 276 rounding-mode)<br>procedure</span>
 <code class="signature">(<a href="#current-rounding-mode">current-rounding-mode</a>)</code>
@@ -3063,16 +3271,15 @@ should round-trip NaNs.</p>
 <dd>Operations are rounded to the closest representable value not greater than
     the infinitely precise value. (IEEE 754 roundTowardsNegative)</dd>
 <dt><code>round-towards-zero</code></dt>
-<dd>Operations are rounded to the closest representable value not greater than
-    in magnitude the infinitely precise value. (IEEE 754 roundTowardsZero)</dd>
+<dd>Operations are rounded to the closest representable value not greater
+    in magnitude than the infinitely precise value. (IEEE 754
+    roundTowardsZero)</dd>
 </dl>
-<div class="boxed">
+
 <p>
-  <span class="boxed-tag">Note</span>:
   The rounding mode is independent of the behavior of the
   integer rounding functions and the integer division functions.
 </p>
-</div>
 
 <div class="feature" id="rounding-modep">
 <span class="category">(srfi 276 rounding-mode)<br>procedure</span>
@@ -3082,6 +3289,31 @@ should round-trip NaNs.</p>
 <p>Returns <code>#t</code> if <var>obj</var> is a valid rounding mode,
    and <code>#f</code> otherwise.
 </p>
+
+<div class="feature">
+<span class="category">(srfi 276 rounding-mode-macro)<br>syntax</span>
+<code class="signature">(<a id="rounding-mode" href="#rounding-mode">rounding-mode</a> ⟨<var>rounding-mode symbol</var>⟩)</code>
+</div>
+
+<p>
+If ⟨<var>rounding-mode symbol</var>⟩ is a symbol supported by the
+implementation as an rounding-mode, then the expression <code>(rounding-mode
+⟨<var>rounding-mode symbol</var>⟩)</code> evaluates to the symbol named
+⟨<var>rounding-mode symbol</var>⟩. If ⟨<var>rounding-mode symbol</var>⟩
+is a symbol not supported by the implementation, an error is raised when
+this form is expanded.
+</p>
+
+<div class="boxed">
+<p>
+  <span class="boxed-tag">Note</span>:
+Only the name of ⟨<var>rounding-mode symbol</var>⟩ is significant.
+</p>
+
+<p>
+  This form is not implementable in syntax-rules.
+</p>
+</div>
 
 <div class="feature" id="with-rounding-mode">
 <span class="category">(srfi 276 with-rounding-mode)<br>syntax</span>
@@ -3152,7 +3384,7 @@ should round-trip NaNs.</p>
 <h2 id="exception-libraries"><a href="#exception-libraries"></a>
   Floating-point exception library</h2>
 <div class="feature" id="flexception-namep">
-<span class="category">(srfi 276 exceptions)<br>procedure</span>
+<span class="category">(srfi 276 exception)<br>procedure</span>
 <code class="signature">(<a href="#flexception-namep">flexception-name?</a> <var>obj</var>)</code>
 </div>
 
@@ -3172,22 +3404,47 @@ should round-trip NaNs.</p>
 <dt><code>underflow</code></dt>
 <dd>Raised if an operation returned an operation that was non-zero, lower
     in magnitude than the smallest normal flonum.</dd>
-<dt><code>inexact</code></dt>
+<dt><code>inexact-result</code></dt>
 <dd>Raised if an operation returned a rounded result that is different
     from the exact result.</dd>
 </dl>
 
 <p>An implementation may add more exceptions, which should be symbols.</p>
 
+<div class="feature">
+<span class="category">(srfi 276 flexception-macro)<br>syntax</span>
+<code class="signature">(<a id="flexception" href="#flexception">flexception</a> ⟨<var>flexception symbol</var>⟩)</code>
+</div>
+
+<p>
+If ⟨<var>flexception symbol</var>⟩ is a symbol supported by the
+implementation as a floating point exception, then the expression <code>(flexception
+⟨<var>flexception symbol</var>⟩)</code> evaluates to the symbol named
+⟨<var>flexception symbol</var>⟩. If ⟨<var>flexception symbol</var>⟩
+is a symbol not supported by the implementation, an error is raised when
+this form is expanded.
+</p>
+
+<div class="boxed">
+<p>
+  <span class="boxed-tag">Note</span>:
+Only the name of ⟨<var>flexception symbol</var>⟩ is significant.
+</p>
+
+<p>
+  This form is not implementable in syntax-rules.
+</p>
+</div>
+
 <div class="feature" id="current-flexceptions">
-<span class="category">(srfi 276 exceptions)<br>procedure</span>
+<span class="category">(srfi 276 exception)<br>procedure</span>
 <code class="signature">(<a href="#current-flexceptions">current-flexceptions</a>)</code>
 </div>
 
 <p>Returns an immutable list of the current raised exceptions.</p>
 
 <div class="feature" id="possible-flexceptions">
-<span class="category">(srfi 276 exceptions)<br>procedure</span>
+<span class="category">(srfi 276 exception)<br>procedure</span>
 <code class="signature">(<a href="#possible-flexceptions">possible-flexceptions</a>)</code>
 </div>
 
@@ -3195,158 +3452,30 @@ should round-trip NaNs.</p>
    raised.</p>
 
 <div class="feature" id="flexception-raisedp">
-<span class="category">(srfi 276 exceptions)<br>procedure</span>
-<code class="signature">(<a href="#flexception-raisedp">flexception-raised?</a> <var>exception</var>)</code>
+<span class="category">(srfi 276 exception)<br>procedure</span>
+<code class="signature">(<a href="#flexceptions-raisedp">flexceptions-raised?</a> <var>exception-or-list</var> …)</code>
 </div>
 
-<p>Returns <code>#t</code> if <var>exception</var> was raised in the
+<p>Returns <code>#t</code> if each exception was raised in the
    current exception environment.
 </p>
 
 <div class="feature" id="raise-flexceptions">
 <span class="category">(srfi 276 exceptions)<br>procedure</span>
-<code class="signature">(<a href="#raise-flexception" id="raise-flexception">raise-flexceptions!</a> <var>exception</var> …)</code>
+<code class="signature">(<a href="#raise-flexceptions" id="raise-flexceptions">raise-flexceptions!</a> <var>exception-or-list</var> …)</code>
 </div>
 
 <p>
-  Raise each <var>exception</var>.
+  Raise each exception.
 </p>
 
 <div class="feature" id="lower-flexceptions">
 <span class="category">(srfi 276 exceptions)<br>procedure</span>
-<code class="signature">(<a href="#lower-flexception" id="lower-flexception">lower-flexceptions!</a> <var>exception</var> …)</code>
+<code class="signature">(<a href="#lower-flexceptions" id="lower-flexceptions">lower-flexceptions!</a> <var>exception-or-list</var> …)</code>
 </div>
 
 <p>
-  Lower each <var>exception</var>.
-</p>
-
-<div class="feature" id="with-flexceptions">
-<span class="category">(srfi 276 exceptions)<br>syntax</span>
-<code class="signature">(<a href="#with-flexceptions">with-flexceptions</a>
-<var>exception-list</var> <var>body<sub>1</sub></var> <var>body<sub>2</sub></var> …)</code>
-</div>
-
-<p>
-  Evaluate <var>exception-list</var> to a list of exceptions. The body is
-  evaluated in an environment that starts out with the exceptions that
-  were in the list of exceptions. Raising and lowering exceptions affects
-  the exceptions in the dynamic extent, and not the exceptions anywhere
-  else.
-</p>
-
-<h2 id="environment"><a href="#environment"></a>Floating point environment library</h2>
-
-<p>
-  An implementation may add more objects to the floating
-  point environment.  For example, it may add a toggle to
-  signal Scheme exceptions when a floating-point exception
-  is raised. However, it must preserve the property that <a
-  href="#flenvironmenteqp"><code>flenvironment=?</code></a> decides the
-  equivalence of environments.
-</p>
-
-<div class="feature" id="current-flenvironment">
-<span class="category">(srfi 276 environment)<br>procedure</span>
-<code class="signature">(<a href="#current-flenvironment">current-flenvironment</a>)</code>
-</div>
-
-<p>Returns the current floating point environment. The floating point
-   environment encompasses all modifications possible at runtime.
-</p>
-
-<div class="feature" id="flenvironmentp">
-<span class="category">(srfi 276 environment)<br>procedure</span>
-<code class="signature">(<a href="#flenvironmentp">flenvironment?</a> <var>obj</var>)</code>
-</div>
-
-<p>
-  Returns <code>#t</code> if <var>obj</var> is an environment, and
-  <code>#f</code> otherwise.
-</p>
-
-<div class="feature" id="flenvironmenteqp">
-<span class="category">(srfi 276 environment)<br>procedure</span>
-<code class="signature">(<a href="#flenvironmenteqp">flenvironment=?</a>
-<var>flenvironment<sub>1</sub></var>
-<var>flenvironment<sub>2</sub></var>
-<var>flenvironment<sub>3</sub></var> …)</code>
-</div>
-
-<p>
-  Returns <code>#t</code> if all <var>flenvironment</var>s are equal.
-  Two environments are equal if, barring Scheme exceptions being signalled,
-  two procedures in this SRFI given the same arguments would return the
-  same results.
-</p>
-
-<div class="feature" id="flenvironment-rounding-mode">
-<span class="category">(srfi 276 environment)<br>procedure</span>
-<code class="signature">(<a href="#flenvironment-rounding-mode">flenvironment-rounding-mode</a>
-<var>flenvironment</var>)</code>
-</div>
-
-<p>
-  Returns the rounding mode in the <var>flenvironment</var>.
-</p>
-
-<div class="feature" id="flenvironment-raised-exceptions">
-<span class="category">(srfi 276 environment)<br>procedure</span>
-<code class="signature">(<a href="#flenvironment-raised-exceptions">flenvironment-raised-exceptions</a>
-<var>flenvironment</var>)</code>
-</div>
-
-<p>
-  Returns an immutable list of raised exceptions in the <var>flenvironment</var>.
-</p>
-
-<div class="feature" id="make-flenvironment">
-<span class="category">(srfi 276 environment)<br>procedure</span>
-<code class="signature">(<a href="#make-flenvironment">make-flenvironment</a>
-<var>rounding-mode</var> <var>exception-list</var>)</code>
-</div>
-
-<p>It is an error if <var>exception-list</var> is not a list of
-   exception names.</p>
-
-<p>
-  Constructs an environment with the <var>rounding-mode</var>, and with
-  the exceptions in <var>exception-list</var> raised.
-</p>
-
-<div class="feature" id="default-flenvironment">
-<span class="category">(srfi 276 environment)<br>procedure</span>
-<code class="signature">(<a href="#default-flenvironment">default-flenvironment</a>)</code>
-</div>
-
-<p>
-  Return the default environment. At runtime this is an implementation-specified
-  environment, and it may be modified by
-  <a href="#with-flenvironment"><code>with-flenvironment</code></a>.
-</p>
-
-<div class="feature" id="restore-flenvironment">
-<span class="category">(srfi 276 environment)<br>procedure</span>
-<code class="signature">(<a href="#restore-flenvironment">restore-flenvironment!</a>
-<var>flenvironment</var>)</code>
-</div>
-
-<p>
-  Set <var>flenvironment</var> as the current floating-point environment.
-</p>
-
-<div class="feature" id="with-flenvironment">
-<span class="category">(srfi 276 environment)<br>syntax</span>
-<code class="signature">(<a href="#with-flenvironment">with-flenvironment</a>
-<var>flenvironment</var> <var>body<sub>1</sub></var> <var>body<sub>2</sub></var> …)</code>
-</div>
-
-<p>
-  Evaluate <var>flenvironment</var> to a floating point environment. When
-  the dynamic extent of the body is first entered, the floating point
-  environment is <var>flenvironment</var>. In addition, throughout the
-  extent of the floating-point environment, the default environment is
-  <var>flenvironment</var>.
+  Lower each exception.
 </p>
 
 <h2 id="implications"><a href="#implications"></a>Implications of IEEE arithmetic for optimizers</h2>
@@ -3466,8 +3595,15 @@ should round-trip NaNs.</p>
   is a Gambit implementation. The Gambit implementation can be compiled
   using the Makefile, and the resulting library is in the <code>gambit-lib</code>
   directory. These only implement the required parts of
-  this SRFI: an MIT-Scheme implementation of the exception, environment,
-  and rounding-mode interface will be provided later.
+  this SRFI. 
+</p>
+
+<p>
+  An MIT-Scheme implementation of the exception and rounding-mode
+  interface is also provided. To run the MIT-Scheme implementation and
+  the test suite, SRFI 144, 158, and 194 must loaded.  Then one can
+  load the <code>.sld</code> files under <code>mit-scheme-lib/</code>
+  and <code>lib/</code>.
 </p>
 
 <p>
@@ -3501,6 +3637,14 @@ should round-trip NaNs.</p>
 <p>
   Implementations that implement SRFI 276 should also export
   SRFI 144 as a compatability library.
+</p>
+
+<p>
+  To run the test suite on MIT-Scheme, load
+  <code>run.mit-scheme.scm</code> with <code>tests</code> as your
+  working directory. Otherwise, to run the test suite on <span
+  class="report-name">R<sup>7</sup>RS</span> implementations, run
+  <code>run.scm</code>.
 </p>
 
 <h2 id="acknowledgements"><a href="#acknowledgements"></a>Acknowledgements</h2>

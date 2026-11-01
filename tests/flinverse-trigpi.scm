@@ -1,8 +1,12 @@
+; SPDX-FileCopyrightText: 2026 Peter McGoron
+; SPDX-License-Identifier: MIT
 (define (test-flasinpi)
   (test-group "flasinpi"
     (test-values (flasinpi 0.0) '(0.0))
     (test-values (flasinpi -0.0) '(-0.0))
-    (test-predicate (flnan? (flasinpi 1.1)))))
+    (test-assert "(flasinpi 1.1)"
+      (true-and-raises 'invalid-operation
+        (flnan? (flasinpi 1.1))))))
 
 (define (test-flasinpi-is-odd)
   (test-group "flasinpi is odd"
@@ -22,7 +26,9 @@
 (define (test-flacospi)
   (test-group "flacospi"
     (test-values (flacospi 1.0) '(0.0))
-    (test-predicate (flnan? (flacospi (fladjacent 1.0 +inf.0))))))
+    (test-assert "(flacospi x>1.0)"
+      (true-and-raises 'invalid-operation
+        (flnan? (flacospi (fladjacent 1.0 +inf.0)))))))
 
 (define (test-flacospi-inversion)
   (test-group "flacospi is inverse to flcospi"

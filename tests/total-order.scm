@@ -1,3 +1,5 @@
+; SPDX-FileCopyrightText: 2026 Peter McGoron
+; SPDX-License-Identifier: MIT
 (define (test-fl<?-implies-fltotal<?)
   (test-group "fl<? implies fltotal<?"
     (test-property

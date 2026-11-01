@@ -1,3 +1,6 @@
+; SPDX-FileCopyrightText: 2026 Peter McGoron
+; SPDX-License-Identifier: MIT
+
 (define-library (srfi 276 deprecated)
   (import (scheme base) (srfi 276))
   (export (rename fl-e^2 fl-e-2)

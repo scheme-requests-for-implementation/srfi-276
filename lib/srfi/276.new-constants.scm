@@ -1,3 +1,5 @@
+; SPDX-FileCopyrightText: 2026 Peter McGoron
+; SPDX-License-Identifier: MIT
 (define fl-radix
   ;; Malcolm's algorithm. See Handbook of Floating Point
   (do ((A (flonum 1.0) (fl* (flonum 2.0) A)))

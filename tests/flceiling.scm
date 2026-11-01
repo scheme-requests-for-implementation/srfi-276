@@ -1,3 +1,5 @@
+; SPDX-FileCopyrightText: 2026 Peter McGoron
+; SPDX-License-Identifier: MIT
 (define (test-flceiling)
   (test-group "flceiling"
     (test-values (flceiling 0.0) '(0.0))

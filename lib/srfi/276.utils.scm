@@ -1,3 +1,5 @@
+; SPDX-FileCopyrightText: 2026 Peter McGoron
+; SPDX-License-Identifier: MIT
 ;;; Utilities for algorithms with increased precision.
 
 (define (fast2sum x y)

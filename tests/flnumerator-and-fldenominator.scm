@@ -1,3 +1,5 @@
+; SPDX-FileCopyrightText: 2026 Peter McGoron
+; SPDX-License-Identifier: MIT
 (define (test-flnumerator)
   (test-values (flnumerator 0.0) '(0.0))
   (test-values (flnumerator -0.0) '(-0.0))

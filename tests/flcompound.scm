@@ -1,3 +1,5 @@
+; SPDX-FileCopyrightText: 2026 Peter McGoron
+; SPDX-License-Identifier: MIT
 (define (test-flcompound-to-zero)
   (test-group "flcompound to zero"
     (test-property
@@ -15,7 +17,8 @@
   (test-group "flcompound below zero"
     (test-property
      (lambda (fl n)
-       (flnan? (flcompound fl n)))
+       (true-and-raises 'invalid-operation
+         (flnan? (flcompound fl n))))
      (list (gfilter (lambda (x)
 		      (fl<? x -1.0))
 		    (gcons*
@@ -27,7 +30,8 @@
   (test-group "flcompound -1.0 negative"
     (test-property
      (lambda (n)
-       (fl=? (flcompound -1.0 n) +inf.0))
+       (true-and-raises 'divide-by-zero
+         (fl=? (flcompound -1.0 n) +inf.0)))
      (list (gfilter negative? (make-random-integer-generator #e-1e6 #e1e6))))))
 
 (define (test-flcompound-minus-1-to-positive)
@@ -58,3 +62,8 @@
   (test-group "flcompound nan"
     (test-assert "(flcompound +nan.0 +0.0)" (prop +0.0))
     (test-assert "(flcompound +nan.0 -0.0)" (prop -0.0))))
+
+(define (test-flcompound-small)
+  (test-group "flcompound on small numbers"
+    ;; In Binary64, 1 + 1e-16 ≈ 1
+    (test-assert (fl>? (flcompound 1e-16 100) 1.0))))

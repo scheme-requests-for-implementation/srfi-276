@@ -1,3 +1,5 @@
+; SPDX-FileCopyrightText: 2026 Peter McGoron
+; SPDX-License-Identifier: MIT
 (define (flremquo* n d)
   (let-values (((r q) (flremquo n d)))
     (values r (modulo q 8))))

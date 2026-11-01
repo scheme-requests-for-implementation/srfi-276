@@ -1,39 +1,31 @@
-,(import (rename (except (srfi 144)
-                          fl-integer-exponent-zero
-                          fl-integer-exponent-nan
-			  flmax flmin)
-		  (fl+ srfi-144:fl+)
-		  (fl- srfi-144:fl-)
-		  (fl/ srfi-144:fl/)
-		  (fl* srfi-144:fl*)
-		  (fllog1+ fllog+1)
-		  (flonum srfi-144:flonum)
-                  (flsign-bit srfi-144:flsign-bit)
-                  (flinteger-exponent srfi-144:flinteger-exponent)
-		  (flquotient fltruncate-quotient)
-		  (flremainder fltruncate-remainder)
-                  (flnormalized? flnormal?)
-                  (fldenormalized? flsubnormal?)))
-,(import (rename (only (srfi 143) fx-greatest fx-least)
-                     (fx-greatest large-positive-integer)
-                     (fx-least large-negative-integer)))
+; SPDX-FileCopyrightText: 2026 Peter McGoron
+; SPDX-License-Identifier: MIT
+(cond-expand
+  ((library (srfi 276 exception))
+   (define-syntax true-and-raises
+     (syntax-rules ()
+       ((_ %exception-list body ...)
+        (let ((exception-list %exception-list))
+          (lower-flexceptions! exception-list)
+          (let ((res (and (let () body ...)
+                          (flexceptions-raised? %exception-list))))
+            (lower-flexceptions! exception-list)
+            res))))))
+  (else
+   (define-syntax true-and-raises
+     (syntax-rules ()
+       ((_ %exception-list body ...)
+        (let () body ...))))))
 
-;;;; NOTE: This test suite assumes round toward nearest behavior.
+(include "random-flonum.scm")
 
-(load "tests/tests.mit-scheme.scm")
-(load "tests/random-flonum.scm")
-(load "lib/srfi/276.utils.scm")
-
-(load "lib/srfi/276.sign-negative.scm")
-(load "tests/flsign-negative.scm")
+(include "flsign-negative.scm")
 (test-flsign-negative?)
 
-(load "lib/srfi/276.integer-exponent.scm")
-(load "lib/srfi/276.new-constants.scm")
-(load "tests/flinteger-exponent.scm")
+(include "flinteger-exponent.scm")
 (test-flinteger-exponent)
 
-(load "tests/implementation-constants.scm")
+(include "implementation-constants.scm")
 (begin
   (test-fl-radix)
   (test-fl-precision)
@@ -44,39 +36,33 @@
   (test-fl-epsilon)
   (test-fl-byte-width))
 
-(load "lib/srfi/276.serialization.scm")
-(load "tests/bytevector.scm")
+(include "bytevector.scm")
 (test-binary64-bytevector-on-basic-numbers)
 (test-binary64-bytevector-flonum-ref)
 (test-bytevector-flonum-native-reverse)
 (test-bytevector-flonum-reverse)
 
-(load "lib/srfi/276.flonum.scm")
-(load "tests/flonum.scm")
+(include "flonum.scm")
 (test-flonum)
 (test-flonum-property)
 
-(load "tests/fladjacent.scm")
+(include "fladjacent.scm")
 (test-fladjacent)
 
-(load "tests/flcopysign.scm")
+(include "flcopysign.scm")
 (test-flcopysign)
 
-(load "tests/flinteger-fraction.scm")
+(include "flinteger-fraction.scm")
 (test-flinteger-fraction)
 
-(load "tests/flexponent.scm")
+(include "flexponent.scm")
 (test-flexponent)
 
-(load "tests/flnormalized-fraction-exponent.scm")
+(include "flnormalized-fraction-exponent.scm")
 (test-flnormalized-fraction-exponent)
 (flnormalized-fraction-exponent-and-make-flonum-are-inverses)
-(load "tests/make-flonum.scm")
-(test-make-flonum)
 
-(load "lib/srfi/276.fl-not-equal.scm")
-(load "lib/srfi/276.total.scm")
-(load "tests/order.scm")
+(include "order.scm")
 (test-flonum-order)
 (test-negative-infinity-less-than-all-ordered)
 (test-fl-greatest-is-greater-than-all-finite)
@@ -84,7 +70,7 @@
 (test-trichotomy-of-order)
 (test-weak-order)
 
-(load "tests/total-order.scm")
+(include "total-order.scm")
 (test-fl<?-implies-fltotal<?)
 (test-eqv?-implies-fltotal=?)
 (test-trichotomy-of-total-order)
@@ -92,16 +78,14 @@
 (test-nans-are-ordered-beyond-finite-values)
 (test-total-order-special-cases)
 
-(load "lib/srfi/276.flordered.scm")
-(load "tests/flunordered.scm")
+(include "flunordered.scm")
 (test-nans-are-unordered)
 (test-non-nans-are-ordered)
 
-(load "lib/srfi/276.fl-not-equal.scm")
-(load "tests/fl-not-equal.scm")
+(include "fl-not-equal.scm")
 (test-fl!=?)
 
-(load "tests/subtype-predicates.scm")
+(include "subtype-predicates.scm")
 (test-flinteger?)
 (test-flzero?)
 (test-flpositive?)
@@ -114,8 +98,7 @@
 (test-flnormal?)
 (test-flsubnormal?)
 
-(load "lib/srfi/276.maxmin.scm")
-(load "tests/maxmin.scm")
+(include "maxmin.scm")
 (test-flmax)
 (test-flmax-filter-nans)
 (test-flmin)
@@ -125,77 +108,79 @@
 (test-flmin-abs)
 (test-flmin-abs-filter-nans)
 
-(load "lib/srfi/276.arith.scm")
-(load "tests/arith.scm")
+(include "arith.scm")
 (test-fl+)
 (test-fl-)
 (test-fl*)
 (test-fl/)
 
-(load "tests/fma.scm")
+(include "fma.scm")
 (test-fl+*)
 
-(load "tests/abs.scm")
+(include "abs.scm")
 (test-flabs)
 (test-flabs-sign-positive)
 
-(load "tests/flabsdiff.scm")
+(include "flabsdiff.scm")
 (test-flabsdiff)
 (test-flabsdiff-defining-property)
 
-(load "tests/flposdiff.scm")
+(include "flposdiff.scm")
 (test-flposdiff)
 (test-flabsdiff-defining-property)
 
-(load "tests/flsgn.scm")
+(include "flsgn.scm")
 (test-flsgn-defining-property)
 
-(load "tests/flnumerator-and-fldenominator.scm")
+(include "flnumerator-and-fldenominator.scm")
 (test-flnumerator)
 (test-fldenominator)
 (test-flnumerator-and-fldenominator-property)
 
-(load "tests/flfloor.scm")
+(include "flfloor.scm")
 (test-flfloor)
 (test-flfloor-is-integer)
 (test-flfloor-not-larger)
 
-(load "tests/flceiling.scm")
+(include "flceiling.scm")
 (test-flceiling)
 (test-flceiling-is-integer)
 (test-flceiling-not-smaller)
 
-(load "tests/fltruncate.scm")
+(include "fltruncate.scm")
 (test-fltruncate)
 (test-fltruncate-is-integer)
 (test-fltruncate-closer-to-zero)
 
-(load "tests/flround.scm")
+(include "flround.scm")
 (test-flround)
 (test-flround-is-integer)
 (test-flround-property)
 
-(load "lib/srfi/276.round-away.scm")
-(load "tests/flround-away.scm")
+(include "flround-away.scm")
 (test-flround-away)
 (test-flround-away-is-integer)
 (test-flround-away-property)
 
-(load "tests/fltruncate-quotient.scm")
+(include "fltruncate-quotient.scm")
 (test-fltruncate-quotient-for-infinite-denominator)
+(test-fltruncate-remainder-special-cases)
 (test-fltruncate-quotient-finite-sign)
 
-(load "tests/test-flremquo.scm")
+(include "test-flremquo.scm")
 (test-flremquo)
 
-(load "lib/srfi/276.exp.scm")
-(load "tests/flexp.scm")
+(include "flexp.scm")
 (test-flexp)
 (test-flexp-1)
 (test-flexp2)
 (test-flexp2-1)
 (test-flexp10)
 (test-flexp10-1)
+;; Gauche's flexpt returns complex numbers instead of NaNs.
+(cond-expand
+  (gauche (set! skipping? #t))
+  (else))
 (test-flexpt-to-the-power-of-zero)
 (test-flexpt-0.0-negative-odd)
 (test-flexpt-0.0-negative-not-odd)
@@ -215,9 +200,39 @@
 (test-flexpt-minus-infinity-to-positive-non-odd)
 (test-flexpt-minus-infinity-to-negative-non-odd)
 (test-flexpt-nan-rules)
+(cond-expand
+  (gauche (set! skipping? #f))
+  (else))
 
-(load "lib/srfi/276.fllog.scm")
-(load "tests/fllog.scm")
+(include "flpown.scm")
+(test-flpown-simple)
+(test-flpown-to-0)
+(test-flpown-0-to-odd-negative-n)
+(test-flpown-0-to-even-negative-n)
+(test-flpown-0-to-even-positive-n)
+(test-flpown-0-to-odd-positive-n)
+(test-flpown-infinity-n)
+(test-flpown-negative-infinity-odd-positive-n)
+(test-flpown-negative-infinity-even-positive-n)
+(test-flpown-negative-infinity-to-odd-negative-n)
+(test-flpown-negative-infinity-to-even-negative-n)
+
+(include "flroot.scm")
+(test-flroot-simple)
+(test-flroot-0-to-odd-negative-n)
+(test-flroot-0-to-even-negative-n)
+(test-flroot-0-to-even-positive-n)
+(test-flroot-0-to-odd-positive-n)
+(test-flroot-infinity-n)
+(test-flroot-negative-infinity-odd-positive-n)
+(test-flroot-negative-infinity-even-positive-n)
+(test-flroot-positive-infinity-to-negative-n)
+(test-flroot-negative-infinity-to-odd-negative-n)
+(test-flroot-negative-infinity-to-even-negative-n)
+(test-flroot-to-zero)
+(test-flroot-negative-x-to-negative-n)
+
+(include "fllog.scm")
 
 (test-fllog)
 (test-fllog2)
@@ -226,12 +241,10 @@
 (test-fllog2+1)
 (test-fllog10+1)
 
-(load "lib/srfi/276.cbrt.scm")
-(load "tests/flcbrt.scm")
+(include "flcbrt.scm")
 (test-flcbrt)
 
-(load "lib/srfi/276.compound.scm")
-(load "tests/flcompound.scm")
+(include "flcompound.scm")
 (test-flcompound-to-zero)
 (test-flcompound-below-zero)
 (test-flcompound-minus-1-to-negative)
@@ -239,22 +252,23 @@
 (test-flcompound-infinite-to-positive)
 (test-flcompound-infinite-to-negative)
 (test-flcompound-nan)
+(test-flcompound-small)
 
-(load "tests/flhypot.scm")
+(include "flhypot.scm")
 (test-flhypot)
 (test-flhypot-0.0)
 (test-flhypot-0.0-symmetric)
 (test-flhypot-inf.0)
 (test-flhypot-inf.0-symmetric)
 
-(load "lib/srfi/276.rsqrt.scm")
-(load "tests/flrsqrt.scm")
+
+(include "flrsqrt.scm")
 (test-flrsqrt)
 
-(load "tests/flsqrt.scm")
+(include "flsqrt.scm")
 (test-flsqrt)
 
-(load "tests/fltrig.scm")
+(include "fltrig.scm")
 (test-flsin)
 (test-flsin-odd-property)
 (test-flcos)
@@ -262,8 +276,7 @@
 (test-fltan)
 (test-fltan-odd-property)
 
-(load "lib/srfi/276.trigpi.scm")
-(load "tests/fltrigpi.scm")
+(include "fltrigpi.scm")
 (test-flsinpi)
 (test-flsinpi-odd)
 (test-flsinpi-integer-property)
@@ -275,7 +288,7 @@
 (test-fltanpi)
 (test-fltanpi-odd)
 (test-fltanpi-positive-even-integers)
-(test-fltanpi-negative-odd-integers)
+(test-fltanpi-on-negative-odd-integers)
 (test-fltanpi-on-positive-odd-integers)
 (test-fltanpi-on-negative-even-integers)
 (test-fltanpi-on-positive-even-integer+0.5)
@@ -283,7 +296,7 @@
 (test-fltanpi-on-positive-odd-integer+0.5)
 (test-fltanpi-on-negative-even-integer-0.5)
 
-(load "tests/flinverse-trig.scm")
+(include "flinverse-trig.scm")
 (test-flasin)
 (test-flasin-is-odd)
 (test-flasin-inversion)
@@ -305,7 +318,7 @@
 (test-flatan-x=+inf.0)
 (test-flatan-y-infinite-x-finite)
 
-(load "lib/srfi/276.flinverse-trigpi.scm")
+(include "flinverse-trigpi.scm")
 (test-flasinpi)
 (test-flasinpi-is-odd)
 (test-flasinpi-inversion)
@@ -327,7 +340,7 @@
 (test-flatanpi-x=+inf.0)
 (test-flatanpi-y-infinite-x-finite)
 
-(load "tests/flhyp.scm")
+(include "flhyp.scm")
 (test-flsinh)
 (test-flsinh-odd)
 (test-flcosh)
@@ -343,7 +356,7 @@
 (test-flatanh-nan)
 (test-flatanh-odd)
 
-(load "tests/special-functions.scm")
+(include "special-functions.scm")
 (test-flerf)
 (test-flerf-odd)
 (test-flerfc)
@@ -354,4 +367,39 @@
 
 ;;; FIXME: No tests for bessel functions yet
 
+(cond-expand
+  ((library (srfi 276 exception))
+   (include "exception.scm")
+   (test-flexception-name)
+   (test-flexception-behavior))
+  (else))
 
+(cond-expand
+  ((library (srfi 276 flexception-macro))
+   (include "flexception-macro.scm")
+   (test-flexception-macro))
+  (else))
+
+(cond-expand
+  ((library (srfi 276 rounding-mode))
+   (include "rounding-mode.scm")
+   (test-rounding-mode))
+  (else))
+
+(cond-expand
+  ((library (srfi 276 rounding-mode-macro))
+   (include "rounding-mode-macro.scm")
+   (test-rounding-mode-macro))
+  (else))
+
+(cond-expand
+  ((library (srfi 276 with-rounding-mode))
+   (include "with-rounding-mode.scm")
+   (test-with-rounding-mode))
+  (else))
+
+(cond-expand
+  ((library (srfi 276 set-rounding-mode))
+   (include "set-rounding-mode.scm")
+   (test-set-rounding-mode))
+  (else))

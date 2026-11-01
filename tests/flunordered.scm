@@ -1,3 +1,5 @@
+; SPDX-FileCopyrightText: 2026 Peter McGoron
+; SPDX-License-Identifier: MIT
 (define (test-nans-are-unordered)
   (test-group "NaNs are unordered"
     (test-property

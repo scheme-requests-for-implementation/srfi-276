@@ -1,3 +1,5 @@
+; SPDX-FileCopyrightText: 2026 Peter McGoron
+; SPDX-License-Identifier: MIT
 ;;; FIXME: These could be defined to be much better.
 
 (define (fllog2+1 x)
